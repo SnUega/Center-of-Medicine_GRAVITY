@@ -8,11 +8,6 @@ export { initNewsletterForm } from './newsletter.js';
 /**
  * Инициализация страницы блога
  */
-export async function initBlogPage() {
-  const { initNewsletterForm } = await import('./newsletter.js');
-  
-  // Инициализируем форму подписки
+export function initBlogPage() {
   initNewsletterForm();
-  
-  // console.log('✅ Blog page initialized'); // DEBUG: отключено
 }

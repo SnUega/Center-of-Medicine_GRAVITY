@@ -8,15 +8,8 @@ export { initPagePreloader, showPagePreloader } from './page-preloader.js';
 
 /**
  * Инициализация всех компонентов страницы услуг
+ * (Прелоадер инициализируется в services-main.js отдельно.)
  */
-export async function initServicesPage() {
-  const { initAccordions } = await import('./accordion.js');
-  
-  // ПРИМЕЧАНИЕ: Прелоадер инициализируется в services-main.js, чтобы избежать двойной инициализации
-  // initPagePreloader() вызывается там первым делом
-  
-  // Инициализируем аккордеоны
+export function initServicesPage() {
   initAccordions();
-  
-  // console.log('✅ Services page initialized'); // DEBUG: отключено
 }

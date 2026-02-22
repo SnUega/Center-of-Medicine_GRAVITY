@@ -24,5 +24,8 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
+# Локальная документация и отчёты (не пушить)
+docs-local/
+
 # Optional: keep lockfile in repo for reproducible installs
 # package-lock.json
