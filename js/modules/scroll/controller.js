@@ -7,9 +7,7 @@ import { waitForLibrary, isMobileDevice} from '../../core/utils.js';
 import { CONFIG } from '../../core/config.js';
 import { getErrorHandler, ERROR_SEVERITY } from '../../core/errors.js';
 import { registerLenis, lockScroll, unlockScroll } from '../../core/scroll-lock.js';
-import Lenis from 'lenis';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger, Lenis } from '../../lib.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
