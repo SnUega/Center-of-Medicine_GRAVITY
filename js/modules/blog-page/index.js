@@ -3,7 +3,8 @@
  * Главный модуль для страницы блога
  */
 
-export { initNewsletterForm } from './newsletter.js';
+import { initNewsletterForm } from './newsletter.js';
+export { initNewsletterForm };
 
 /**
  * Инициализация страницы блога

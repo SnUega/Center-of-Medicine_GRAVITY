@@ -3,7 +3,8 @@
  * Главный модуль для страниц услуг
  */
 
-export { initAccordions, openAccordion, closeAllAccordions } from './accordion.js';
+import { initAccordions, openAccordion, closeAllAccordions } from './accordion.js';
+export { initAccordions, openAccordion, closeAllAccordions };
 export { initPagePreloader, showPagePreloader } from './page-preloader.js';
 
 /**
