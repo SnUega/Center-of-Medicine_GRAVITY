@@ -2,6 +2,25 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { copyFileSync, mkdirSync, readdirSync, statSync, existsSync } from 'fs';
 
+const basePath = process.env.BASE_PATH || '/';
+
+/** Подставляет base в url(...img/...) в CSS, чтобы на GitHub Pages (подпуть) картинки грузились без 404 */
+function cssBasePathPlugin() {
+  return {
+    name: 'css-base-path',
+    transform(code, id) {
+      if (!id.endsWith('.css') || basePath === '/') return null;
+      const base = basePath.replace(/\/$/, '');
+      return {
+        code: code
+          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/img\//g, `url('${base}/img/`)
+          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/\.\.\/img\//g, `url('${base}/img/`),
+        map: null
+      };
+    }
+  };
+}
+
 /** Копирует папку img в dist при сборке (Vite по умолчанию копирует только public/) */
 function copyImgPlugin() {
   return {
@@ -27,10 +46,10 @@ function copyImgPlugin() {
 export default defineConfig({
   // Корень проекта — папка с index.html
   root: '.',
-  plugins: [copyImgPlugin()],
+  plugins: [cssBasePathPlugin(), copyImgPlugin()],
 
   // base: по умолчанию '/' (продакшен на своём домене, локальный dev). Для деплоя на GitHub Pages задаётся через BASE_PATH в workflow.
-  base: process.env.BASE_PATH || '/',
+  base: basePath,
 
   build: {
     outDir: 'dist',
