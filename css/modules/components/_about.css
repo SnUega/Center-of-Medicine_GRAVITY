@@ -1,0 +1,372 @@
+/* ============================================
+   About Section — sunken niche with floating cards
+   ============================================ */
+
+.about {
+  overflow-x: hidden;
+}
+
+section.about {
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  background: var(--color-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* STRONG side + top/bottom shadows — deep sunken niche */
+section.about::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right,  rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.52) 14%, rgba(0,0,0,0.15) 30%, transparent 46%),
+    linear-gradient(to left,   rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.52) 14%, rgba(0,0,0,0.15) 30%, transparent 46%),
+    linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.12) 22%, transparent 40%),
+    linear-gradient(to top,    rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.12) 22%, transparent 40%);
+  pointer-events: none;
+  z-index: 1;  /* below cards — shadows frame the niche, not cover cards */
+}
+
+/* Subtle pattern */
+.about-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: url('../../img/bg-logo-pattern.JPG');
+  background-size: 340px;
+  background-repeat: repeat;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.about-title {
+  text-align: center;
+  z-index: 0;
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.about-title h2 {
+  font-size: clamp(1.05rem, 2.2vw, 1.55rem);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+
+.about-title-accent {
+  color: var(--color-accent);
+}
+
+.about-title p {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Cards container */
+.cards-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-wrap: nowrap;
+  z-index: 4;
+  width: 100%;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Individual card */
+.card {
+  position: relative;
+  width: 28%;
+  min-width: 200px;
+  height: 52vh;
+  margin-left: -10%;
+  background: var(--color-bg-lighter);
+  border-radius: 14px;
+  padding: 0;
+  opacity: 0;
+  transform: translateY(50px);
+  pointer-events: auto;
+  overflow: hidden;
+  text-align: center;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:first-child { margin-left: 0; z-index: 1; }
+.card:nth-child(2) { z-index: 2; }
+.card:nth-child(3) { z-index: 3; }
+.card:nth-child(4) { z-index: 4; }
+
+/* Gradient border */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(141,90,151,0.55) 0%,
+    rgba(141,90,151,0.08) 50%,
+    rgba(180,180,200,0.25) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Sci-fi top-left corner bracket */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 22px;
+  height: 22px;
+  border-top: 1.5px solid rgba(141,90,151,0.5);
+  border-left: 1.5px solid rgba(141,90,151,0.5);
+  border-radius: 2px 0 0 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.card:hover {
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(141,90,151,0.2);
+  transform: translateY(50px) translateY(-5px);
+}
+
+/* Card inner layout — flex column fills height */
+.card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem 1.2rem 1.1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* BR corner bracket */
+.card-corner-br {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  border-bottom: 1.5px solid rgba(141,90,151,0.38);
+  border-right: 1.5px solid rgba(141,90,151,0.38);
+  border-radius: 0 0 2px 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Decorative circle — centered faint ring */
+.card-deco-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px solid rgba(141,90,151,0.1);
+  pointer-events: none;
+  z-index: 0;
+}
+.card-deco-circle::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(141,90,151,0.06);
+}
+
+/* Card eyebrow */
+.card-number {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--color-accent);
+  opacity: 0.7;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+/* Card title — bigger */
+.card h3 {
+  font-size: clamp(0.82rem, 1.2vw, 1.1rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  line-height: 1.3;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+/* Card body text */
+.card-body-text {
+  font-size: clamp(0.68rem, 0.85vw, 0.78rem);
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  position: relative;
+  z-index: 1;
+  margin-top: 0.6rem;
+  flex: 1;
+}
+
+/* Spacer pushes button to bottom */
+.card-spacer { flex: 1; }
+
+/* Open button — always at the very bottom */
+.card > .open,
+.card-inner > .open {
+  margin-top: auto;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: 0 0 12px 12px;  /* bottom-only radius — flush with card edge */
+  border: none;
+  border-top: 1px solid rgba(141,90,151,0.25);
+  cursor: pointer;
+  z-index: 5;
+  position: relative;
+  transition: all 0.3s ease;
+  font-size: 0.6rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.card > .open::after,
+.card-inner > .open::after {
+  content: '›';
+  font-size: 1em;
+  opacity: 0.6;
+  transition: transform 0.3s ease;
+}
+
+.card > .open:hover,
+.card-inner > .open:hover {
+  background: rgba(141,90,151,0.1);
+  color: var(--color-accent);
+  border-top-color: rgba(141,90,151,0.5);
+}
+.card > .open:hover::after,
+.card-inner > .open:hover::after {
+  transform: translateX(3px);
+}
+
+/* Overlay */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--color-bg-lighter) 0%, rgba(30,30,37,0.98) 100%);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(100%);
+  z-index: 8;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.overlay-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem 1.2rem 0;
+  flex: 1;
+}
+
+/* Touch targets */
+@media (hover: none) and (pointer: coarse) {
+  .cards-container { pointer-events: none; }
+  .card { pointer-events: none; }
+  .card button { pointer-events: auto; }
+  .overlay { pointer-events: none; }
+  .overlay button { pointer-events: auto; }
+}
+
+.overlay h4 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(0.68rem, 1vw, 0.88rem);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--color-accent);
+  line-height: 1.3;
+}
+
+.overlay p {
+  font-size: clamp(0.68rem, 0.88vw, 0.8rem);
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+  flex: 1;
+}
+
+/* Close — bottom flush like open button */
+.overlay .close {
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(141,90,151,0.22);
+  color: var(--color-text-muted);
+  border-radius: 0 0 12px 12px;
+  padding: 0.55rem 1rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.overlay .close::before {
+  content: '‹';
+  font-size: 1em;
+  opacity: 0.6;
+  transition: transform 0.3s ease;
+}
+.overlay .close:hover {
+  border-top-color: rgba(141,90,151,0.5);
+  color: var(--color-accent);
+  background: rgba(141,90,151,0.08);
+}
+.overlay .close:hover::before {
+  transform: translateX(-3px);
+}
+
+@media (max-width: 768px) {
+  .card { width: 70vw; min-width: 260px; margin-left: -22%; height: 48vh; }
+}

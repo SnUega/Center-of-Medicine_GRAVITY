@@ -1,0 +1,8 @@
+/* ============================================
+   Sonline Widget — minimal override
+   ============================================ */
+
+/* Hide default sonline container overflow */
+#widgetSonline {
+  display: none; /* Widget is triggered programmatically */
+}
