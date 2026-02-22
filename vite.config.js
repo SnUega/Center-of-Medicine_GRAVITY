@@ -29,8 +29,8 @@ export default defineConfig({
   root: '.',
   plugins: [copyImgPlugin()],
 
-  // Базовый путь при деплое на хостинг (корень домена)
-  base: '/',
+  // base: по умолчанию '/' (продакшен на своём домене, локальный dev). Для деплоя на GitHub Pages задаётся через BASE_PATH в workflow.
+  base: process.env.BASE_PATH || '/',
 
   build: {
     outDir: 'dist',
