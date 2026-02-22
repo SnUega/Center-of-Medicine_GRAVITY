@@ -33,7 +33,7 @@ jobs:
 
       - name: Build
         env:
-          BASE_PATH: '/Center-of-Medicine_GRAVITY/'
+          BASE_PATH: './'
         run: npm run build
 
       - name: Setup Pages

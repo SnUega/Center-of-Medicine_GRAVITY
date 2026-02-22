@@ -4,17 +4,19 @@ import { copyFileSync, mkdirSync, readdirSync, statSync, existsSync } from 'fs';
 
 const basePath = process.env.BASE_PATH || '/';
 
-/** Подставляет base в url(...img/...) в CSS, чтобы на GitHub Pages (подпуть) картинки грузились без 404 */
+/** Подставляет base в url(...img/...) в CSS. При base './' — относительные пути ../img (из assets/), иначе base + img */
 function cssBasePathPlugin() {
   return {
     name: 'css-base-path',
     transform(code, id) {
-      if (!id.endsWith('.css') || basePath === '/') return null;
-      const base = basePath.replace(/\/$/, '');
+      if (!id.endsWith('.css')) return null;
+      if (basePath === '/') return null;
+      const isRelative = basePath === './';
+      const imgPath = isRelative ? '../img/' : `${basePath.replace(/\/$/, '')}/img/`;
       return {
         code: code
-          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/img\//g, `url('${base}/img/`)
-          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/\.\.\/img\//g, `url('${base}/img/`),
+          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/img\//g, `url('${imgPath}`)
+          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/\.\.\/img\//g, `url('${imgPath}`),
         map: null
       };
     }
@@ -67,18 +69,11 @@ export default defineConfig({
       },
 
       output: {
-        // JS: именованные чанки в assets/
         chunkFileNames:  'assets/[name]-[hash].js',
         entryFileNames:  'assets/[name]-[hash].js',
-        // CSS: в assets/
         assetFileNames:  'assets/[name]-[hash][extname]',
-
-        // Выносим gsap и lenis в отдельный vendor-чанк
-        // чтобы браузер кэшировал их независимо от кода проекта
-        manualChunks(id) {
-          if (id.includes('node_modules/gsap')) return 'vendor-gsap';
-          if (id.includes('node_modules/lenis')) return 'vendor-lenis';
-        }
+        // manualChunks отключены: при base-path (GitHub Pages) в чанках оставался голый импорт "gsap",
+        // браузер не мог его разрешить. GSAP и Lenis теперь входят в entry-чанки.
       }
     },
 
