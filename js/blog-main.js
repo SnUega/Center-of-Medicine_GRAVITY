@@ -31,8 +31,16 @@ async function init() {
       });
     }
 
-    // Этап 0: Быстрый прелоадер (первым делом)
+    // Этап 0: Прелоадер + header запускаются первыми и параллельно.
     initPagePreloader();
+
+    // Header инициализируется немедленно, не ожидая других модулей
+    try {
+      const { initHeaderMenu } = await import('./modules/header/index.js');
+      initHeaderMenu();
+    } catch (error) {
+      initSimpleMenu();
+    }
 
     // Этап 2: Инициализируем компоненты блога
     try {
@@ -44,8 +52,6 @@ async function init() {
     }
 
     // Этап 3: Инициализируем Lenis для плавного скролла через контроллер (как на главной)
-    // ВАЖНО: Используем initScrollController вместо прямого создания Lenis
-    // Это обеспечивает правильную интеграцию с ScrollTrigger и предотвращает артефакты
     try {
       const { initScrollController, initScrollProtection } = await import('./modules/scroll/index.js');
       
@@ -59,7 +65,7 @@ async function init() {
       // console.warn('Lenis not available, using native scroll:', error); // DEBUG: отключено
     }
 
-    // Этап 4: Ждем GSAP для header анимаций
+    // Этап 4: Ждем GSAP для других анимаций
     try {
       // gsap available via import
 if (window.gsap && window.ScrollTrigger) {
@@ -69,18 +75,11 @@ if (window.gsap && window.ScrollTrigger) {
       // console.warn('GSAP not available'); // DEBUG: отключено
     }
 
-    // Этап 5: Инициализируем меню header
+    // Этап 5: Lenis-интеграция меню (header уже инициализирован на этапе 0)
     try {
-      const { initHeaderMenu } = await import('./modules/header/index.js');
-      initHeaderMenu();
-      
-      // Интеграция с Lenis
       setupMenuLenisIntegration();
-      
-      // console.log('✅ Header menu initialized'); // DEBUG: отключено
     } catch (error) {
-      initSimpleMenu();
-      // console.warn('Header module not available, using simple menu'); // DEBUG: отключено
+      // console.warn('Menu Lenis integration failed:', error); // DEBUG: отключено
     }
 
     // Этап 6: Инициализация мобильной подсказки
@@ -258,6 +257,34 @@ function initBlogSearch() {
   
   const articles = Array.from(previewGrid.querySelectorAll('.preview-card'));
   const tagButtons = Array.from(filterTags.querySelectorAll('.tag-badge'));
+
+  // ── Expandable search: лупа → инпут ──────────────────────────
+  const searchWrapper = searchInput.closest('.search-wrapper');
+  const searchIconEl  = searchWrapper?.querySelector('.search-icon');
+
+  function expandSearch() {
+    if (!searchWrapper) return;
+    searchWrapper.classList.add('is-expanded');
+    requestAnimationFrame(() => searchInput.focus());
+  }
+  function collapseSearch(force = false) {
+    if (!searchWrapper) return;
+    if (!force && searchInput.value.trim()) return; // не сворачиваем по blur, если есть текст
+    searchWrapper.classList.remove('is-expanded');
+  }
+
+  if (searchIconEl) {
+    searchIconEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (searchWrapper.classList.contains('is-expanded')) {
+        collapseSearch(true); // повторное нажатие — скрыть панель
+      } else {
+        expandSearch();
+      }
+    });
+  }
+  searchInput.addEventListener('blur', () => collapseSearch(false));
+  // ─────────────────────────────────────────────────────────────
   
   let activeTag = 'all'; // Только один активный тег
   let searchTerm = '';

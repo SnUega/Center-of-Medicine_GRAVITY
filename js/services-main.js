@@ -30,11 +30,22 @@ async function init() {
       });
     }
 
-    // Этап 0: Быстрый прелоадер
+    // Этап 0: Прелоадер + header запускаются первыми и параллельно.
+    // Header должен стартовать ДО любых await, чтобы _runStandaloneIntro()
+    // успел поставить gsap.set(header, {autoAlpha:0}) до того как
+    // page-preloader исчезнет и CSS-стили сделают header видимым.
     const { initPagePreloader } = await import('./modules/services-page/page-preloader.js');
     initPagePreloader();
 
-    // Этап 1: Ждем загрузки GSAP (нужен для header анимаций)
+    // Header инициализируется немедленно, не ожидая других модулей
+    try {
+      const { initHeaderMenu } = await import('./modules/header/index.js');
+      initHeaderMenu();
+    } catch (error) {
+      initSimpleMenu();
+    }
+
+    // Этап 1: Ждем загрузки GSAP (нужен для остальных анимаций)
     try {
       // gsap available via import
 if (window.gsap && window.ScrollTrigger) {
@@ -55,8 +66,6 @@ if (window.gsap && window.ScrollTrigger) {
     }
 
     // Этап 3: Инициализируем Lenis для плавного скролла через контроллер (как на главной)
-    // ВАЖНО: Используем initScrollController вместо прямого создания Lenis
-    // Это обеспечивает правильную интеграцию с ScrollTrigger и предотвращает артефакты
     try {
       const { initScrollController } = await import('./modules/scroll/index.js');
       lenisInstance = await initScrollController();
@@ -65,23 +74,15 @@ if (window.gsap && window.ScrollTrigger) {
       // console.warn('Lenis not available, using native scroll:', error); // DEBUG: отключено
     }
 
-    // Этап 4: Инициализируем меню header
+    // Этап 4: Lenis-интеграция меню (header уже инициализирован на этапе 0)
     try {
-      const { initHeaderMenu } = await import('./modules/header/index.js');
-      initHeaderMenu();
-      
-      // Интеграция с Lenis - останавливаем скролл при открытии меню
       setupMenuLenisIntegration();
-      
-      // console.log('✅ Header menu initialized'); // DEBUG: отключено
     } catch (error) {
-      // Fallback - простая инициализация меню
-      initSimpleMenu();
-      // console.warn('Header module not available, using simple menu:', error); // DEBUG: отключено
+      // console.warn('Menu Lenis integration failed:', error); // DEBUG: отключено
     }
 
-    // Этап 5: Инициализация модального окна
-    initContactModal();
+    // Этап 5: Кнопки «Записаться» открывают виджет онлайн-записи
+    initBookingWidgetButtons();
 
     // Этап 6: Инициализация мобильной подсказки
     initMobileHint();
@@ -182,247 +183,20 @@ function initSimpleMenu() {
 }
 
 /**
- * Инициализация модального окна записи
+ * Кнопки «Записаться» в аккордеонах открывают виджет онлайн-записи (Sonline)
  */
-function initContactModal() {
-  const modal = document.getElementById('contactModal');
-  if (!modal) return;
-
-  const closeBtn = modal.querySelector('.contact-modal-close');
-  const form = modal.querySelector('#contactModalForm');
-  
-  // Открытие модального окна
+function initBookingWidgetButtons() {
+  const options = typeof window.sonlineWidgetOptions !== 'undefined'
+    ? window.sonlineWidgetOptions
+    : { placeid: 999968721 };
   document.querySelectorAll('[data-open-modal="contactModal"]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      openModal(modal);
+      if (typeof showSonlineWidget === 'function') {
+        showSonlineWidget(options);
+      }
     });
   });
-
-  // Закрытие по кнопке
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => closeModal(modal));
-  }
-
-  // Закрытие по клику на overlay
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal(modal);
-    }
-  });
-
-  // Закрытие по Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
-      closeModal(modal);
-    }
-  });
-
-  // Отправка формы
-  if (form) {
-    form.addEventListener('submit', handleFormSubmit);
-    
-    // Валидация в реальном времени
-    const nameInput = form.querySelector('#modal-name');
-    const phoneInput = form.querySelector('#modal-phone');
-    
-    if (nameInput) {
-      nameInput.addEventListener('blur', () => {
-        if (!nameInput.value.trim()) {
-          showFieldError(nameInput, 'Пожалуйста, введите ваше имя');
-        } else {
-          clearFieldError(nameInput);
-        }
-      });
-      nameInput.addEventListener('input', () => {
-        if (nameInput.value.trim()) {
-          clearFieldError(nameInput);
-        }
-      });
-    }
-    
-    if (phoneInput) {
-      phoneInput.addEventListener('blur', () => {
-        if (!phoneInput.value.trim()) {
-          showFieldError(phoneInput, 'Пожалуйста, введите номер телефона');
-        } else if (!validatePhone(phoneInput.value)) {
-          showFieldError(phoneInput, 'Введите корректный номер телефона (российский или белорусский)');
-        } else {
-          clearFieldError(phoneInput);
-        }
-      });
-      phoneInput.addEventListener('input', () => {
-        if (phoneInput.value.trim() && validatePhone(phoneInput.value)) {
-          clearFieldError(phoneInput);
-        }
-      });
-    }
-  }
-}
-
-/**
- * Открыть модальное окно
- */
-function openModal(modal) {
-  modal.classList.add('active');
-  document.body.classList.add('lock-scroll');
-  
-  if (lenisInstance) {
-    lenisInstance.stop();
-  }
-}
-
-/**
- * Закрыть модальное окно
- */
-function closeModal(modal) {
-  modal.classList.remove('active');
-  document.body.classList.remove('lock-scroll');
-  
-  if (lenisInstance) {
-    lenisInstance.start();
-  }
-}
-
-/**
- * Валидация российского/белорусского номера телефона
- */
-function validatePhone(phone) {
-  // Удаляем все символы кроме цифр
-  const cleaned = phone.replace(/\D/g, '');
-  
-  // Российские номера: +7, 8, начинаются с 7 или 8, затем 10 цифр
-  // Белорусские номера: +375, начинаются с 375, затем 9 цифр
-  const ruPattern = /^[78]\d{10}$/; // 11 цифр: 7 или 8 + 10 цифр
-  const byPattern = /^375\d{9}$/; // 12 цифр: 375 + 9 цифр
-  
-  return ruPattern.test(cleaned) || byPattern.test(cleaned);
-}
-
-/**
- * Показать ошибку валидации
- */
-function showFieldError(input, message) {
-  // Убираем предыдущие ошибки
-  const existingError = input.parentElement.querySelector('.field-error');
-  if (existingError) {
-    existingError.remove();
-  }
-  
-  input.classList.add('error');
-  
-  const errorDiv = document.createElement('div');
-  errorDiv.className = 'field-error';
-  errorDiv.textContent = message;
-  errorDiv.style.color = '#F44336';
-  errorDiv.style.fontSize = '0.875rem';
-  errorDiv.style.marginTop = '0.25rem';
-  input.parentElement.appendChild(errorDiv);
-}
-
-/**
- * Убрать ошибку валидации
- */
-function clearFieldError(input) {
-  input.classList.remove('error');
-  const error = input.parentElement.querySelector('.field-error');
-  if (error) {
-    error.remove();
-  }
-}
-
-/**
- * Обработка отправки формы
- */
-async function handleFormSubmit(e) {
-  e.preventDefault();
-  
-  const form = e.target;
-  const submitBtn = form.querySelector('.form-submit-btn');
-  const originalText = submitBtn.textContent;
-  
-  // Получаем поля
-  const nameInput = form.querySelector('#modal-name');
-  const phoneInput = form.querySelector('#modal-phone');
-  
-  // Очищаем предыдущие ошибки
-  if (nameInput) clearFieldError(nameInput);
-  if (phoneInput) clearFieldError(phoneInput);
-  
-  let hasErrors = false;
-  
-  // Валидация имени
-  if (!nameInput || !nameInput.value.trim()) {
-    if (nameInput) {
-      showFieldError(nameInput, 'Пожалуйста, введите ваше имя');
-    }
-    hasErrors = true;
-  }
-  
-  // Валидация телефона
-  if (!phoneInput || !phoneInput.value.trim()) {
-    if (phoneInput) {
-      showFieldError(phoneInput, 'Пожалуйста, введите номер телефона');
-    }
-    hasErrors = true;
-  } else if (phoneInput && !validatePhone(phoneInput.value)) {
-    showFieldError(phoneInput, 'Введите корректный номер телефона (российский или белорусский)');
-    hasErrors = true;
-  }
-  
-  // Если есть ошибки, не отправляем форму
-  if (hasErrors) {
-    // Прокручиваем к первой ошибке
-    const firstError = form.querySelector('.error');
-    if (firstError) {
-      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      firstError.focus();
-    }
-    return;
-  }
-  
-  // Показываем загрузку
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Отправка...';
-  
-  // Собираем данные формы
-  const formData = new FormData(form);
-  const data = Object.fromEntries(formData);
-  
-  try {
-    // TODO: Интеграция с backend/CRM
-    // await fetch('/api/appointment', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data)
-    // });
-    
-    // Имитация отправки
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Успех
-    submitBtn.textContent = 'Отправлено!';
-    submitBtn.style.background = 'linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%)';
-    
-    setTimeout(() => {
-      form.reset();
-      closeModal(document.getElementById('contactModal'));
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-      submitBtn.style.background = '';
-    }, 1500);
-    
-  } catch (error) {
-    console.error('Form submission error:', error);
-    submitBtn.textContent = 'Ошибка, попробуйте снова';
-    submitBtn.style.background = 'linear-gradient(135deg, #F44336 0%, #E91E63 100%)';
-    
-    setTimeout(() => {
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-      submitBtn.style.background = '';
-    }, 2000);
-  }
 }
 
 /**

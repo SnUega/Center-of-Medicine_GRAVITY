@@ -13,7 +13,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Draggable } from 'gsap/Draggable';
-import Lenis from 'lenis';
+import Lenis from '@studio-freight/lenis';
 
 // Регистрируем плагины один раз
 gsap.registerPlugin(ScrollTrigger, Draggable);

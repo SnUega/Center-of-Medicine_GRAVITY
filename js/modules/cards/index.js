@@ -20,9 +20,9 @@ export class CardsManager {
       containerSelector: options.containerSelector || '.cards-container',
       buildDuration: options.buildDuration || (() => Math.max(window.innerHeight * 1.1, 900)),
       pauseAfter: options.pauseAfter || 120,
-      delayBetween: options.delayBetween || 0.38,
-      animationDuration: options.animationDuration || 0.95,
-      holdBeforeReveal: options.holdBeforeReveal || 0.22,
+      delayBetween: options.delayBetween || 0.52,
+      animationDuration: options.animationDuration || 1.12,
+      holdBeforeReveal: options.holdBeforeReveal || 0.28,
       ...options
     };
 
@@ -165,7 +165,7 @@ export class CardsManager {
           opacity: 1,
           y: yEnd,
           duration: this.options.animationDuration,
-          ease: 'power3.out'
+          ease: 'power2.out'
         },
         startTime
       );

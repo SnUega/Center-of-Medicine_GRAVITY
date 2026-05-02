@@ -53,7 +53,7 @@
   margin: 0 auto; 
 }
 
-#page-footer .footer-col h4 { 
+#page-footer .footer-col h3 { 
   margin-bottom: 14px; 
   font-size: clamp(0.875rem, 1.5vw, 1.1rem); 
   font-weight: var(--font-weight-normal);
@@ -85,14 +85,11 @@
 #page-footer .footer-logo { 
   width: 90px; 
   height: 90px; 
-  border-radius: 16px; 
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  background: var(--color-bg-dark); 
   margin-bottom: 14px; 
   overflow: hidden;
-  padding: 8px;
 }
 
 #page-footer .footer-logo img {
@@ -172,28 +169,10 @@
   letter-spacing: 0.02em;
 }
 
-/* Footer nav hover underline (thin, currentColor, left-to-right) */
-#page-footer .footer-nav a { 
-  position: relative; 
-  text-decoration: none; 
-}
-
-#page-footer .footer-nav a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -2px;
-  width: 100%;
-  height: 1px; /* thin */
-  background: currentColor; /* same color as text */
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 200ms ease;
-}
-
-#page-footer .footer-nav a:hover::after,
-#page-footer .footer-nav a:focus-visible::after {
-  transform: scaleX(1);
+/* Footer nav: base link styles only; hover (rotation + line from center) from _menu.css */
+#page-footer .footer-nav a {
+  position: relative;
+  text-decoration: none;
 }
 
 /* ============================================
@@ -224,7 +203,7 @@
   }
 
   #page-footer .footer-col[aria-label="Карта услуг"] {
-    margin-right: clamp(32px, 4vw, 64px); /* дополнительный отступ справа для "Карта услуг" (увеличивает gap между колонками) */
+    margin-right: clamp(40px, 4.5vw, 64px);
   }
 
   #page-footer .footer-bottom {
@@ -293,8 +272,8 @@
   }
 
   /* Крупнее заголовки и ссылки колонок */
-  #page-footer .footer-col[aria-label="Карта услуг"] h4,
-  #page-footer nav.footer-col h4 {
+  #page-footer .footer-col[aria-label="Карта услуг"] h3,
+  #page-footer nav.footer-col h3 {
     font-size: clamp(1rem, 2vw, 1.5rem);
     margin: 0 0 14px 0;
     text-transform: uppercase;
@@ -382,11 +361,11 @@
     margin-right: 0;
   }
   
-  #page-footer .footer-col h4 {
+  #page-footer .footer-col h3 {
     font-size: clamp(0.875rem, 3.5vw, 1.25rem);
   }
   
-  #page-footer nav.footer-col h4 {
+  #page-footer nav.footer-col h3 {
     font-size: clamp(1.125rem, 5vw, 1.75rem);
     text-align: center;
     text-transform: uppercase;
@@ -512,7 +491,7 @@
     text-align: left;
   }
   
-  #page-footer nav.footer-col h4 {
+  #page-footer nav.footer-col h3 {
     font-size: clamp(1rem, 3vw, 1.5rem);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
@@ -601,7 +580,7 @@
     text-align: left; 
   }
 
-  #page-footer nav.footer-col h4 {
+  #page-footer nav.footer-col h3 {
     font-size: clamp(1rem, 3vw, 1.5rem) !important;
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
@@ -643,7 +622,7 @@
     padding-bottom: clamp(24px, 3.5vh, 40px) !important;
   }
   
-  #page-footer nav.footer-col h4 {
+  #page-footer nav.footer-col h3 {
     font-size: clamp(1rem, 2.5vw, 1.5rem) !important;
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
@@ -687,8 +666,8 @@
   }
 
   /* Увеличенный шрифт для заголовков колонок */
-  #page-footer .footer-col[aria-label="Карта услуг"] h4,
-  #page-footer nav.footer-col h4 {
+  #page-footer .footer-col[aria-label="Карта услуг"] h3,
+  #page-footer nav.footer-col h3 {
     font-size: clamp(0.875rem, 2vw, 1.25rem) !important;
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
@@ -723,8 +702,8 @@
   }
 
   /* Шрифт для заголовков колонок */
-  #page-footer .footer-col[aria-label="Карта услуг"] h4,
-  #page-footer nav.footer-col h4 {
+  #page-footer .footer-col[aria-label="Карта услуг"] h3,
+  #page-footer nav.footer-col h3 {
     font-size: clamp(1rem, 2.2vw, 1.5rem) !important;
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
@@ -764,8 +743,8 @@
   }
 
   /* Увеличенный шрифт для заголовков колонок */
-  #page-footer .footer-col[aria-label="Карта услуг"] h4,
-  #page-footer nav.footer-col h4 {
+  #page-footer .footer-col[aria-label="Карта услуг"] h3,
+  #page-footer nav.footer-col h3 {
     font-size: clamp(1rem, 2.2vw, 1.5rem) !important;
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
@@ -827,37 +806,61 @@
 /* Footer inner grid */
 #page-footer .footer-inner {
   display: grid !important;
-  grid-template-columns: 1.4fr 1fr 1fr !important;
+  grid-template-columns: 1.4fr max-content max-content !important;
   gap: 48px !important;
   max-width: 1280px !important;
   margin: 0 auto 48px !important;
   align-items: start !important;
 }
 
-/* Logo – greyscale with hover to color */
-#page-footer .footer-logo img {
-  filter: grayscale(1) brightness(1.2) !important;
-  opacity: 0.7 !important;
-  transition: opacity 0.3s ease, filter 0.3s ease !important;
-}
-#page-footer .footer-logo img:hover {
-  opacity: 1 !important;
-  filter: none !important;
+/* Бренд: лого + слоган по центру */
+#page-footer .footer-brand {
+  align-items: center !important;
 }
 
-/* Tagline under logo */
+/* Logo – всегда цветной, без плейсхолдера */
+#page-footer .footer-logo img {
+  opacity: 1 !important;
+}
+
+/* Tagline under logo — в одну строку, по центру логотипа */
 .footer-tagline {
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: rgba(160, 160, 166, 0.55);
-  margin-top: 1rem;
-  line-height: 1.8;
-  max-width: 200px;
+  margin-top: -2rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  max-width: 100%;
+  width: fit-content;
+  text-align: center;
 }
 
-/* Column headings – small accent */
-#page-footer .footer-col h4 {
+.footer-tagline-accent {
+  color: var(--color-accent);
+}
+
+@media (min-width: 1024px) {
+  #page-footer .footer-brand .footer-logo {
+    width: clamp(180px, 15vw, 300px) !important;
+    height: clamp(180px, 15vw, 300px) !important;
+  }
+  #page-footer .footer-tagline {
+    font-size: 0.9rem !important;
+  }
+}
+@media (min-width: 1367px) {
+  #page-footer .footer-brand .footer-logo {
+    width: clamp(200px, 18vw, 320px) !important;
+    height: clamp(200px, 18vw, 320px) !important;
+  }
+  #page-footer .footer-tagline {
+    font-size: 0.95rem !important;
+  }
+}
+
+#page-footer .footer-col h3 {
   font-size: 0.6rem !important;
   letter-spacing: 0.22em !important;
   color: rgba(141, 90, 151, 0.7) !important;
@@ -866,34 +869,18 @@
   font-weight: 400 !important;
 }
 
-/* Nav links – hover animated dash */
 #page-footer .footer-nav a {
   font-size: 0.78rem !important;
   color: rgba(245, 240, 235, 0.55) !important;
   text-decoration: none !important;
   letter-spacing: 0.04em !important;
-  transition: color 0.2s ease !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-}
-#page-footer .footer-nav a::after {
-  content: '' !important;
+  position: relative !important;
   display: inline-block !important;
-  width: 0 !important;
-  height: 1px !important;
-  background: var(--color-accent) !important;
-  transition: width 0.3s ease !important;
-  flex-shrink: 0 !important;
 }
 #page-footer .footer-nav a:hover {
   color: rgba(245, 240, 235, 0.95) !important;
 }
-#page-footer .footer-nav a:hover::after {
-  width: 16px !important;
-}
 
-/* Footer bottom bar */
 #page-footer .footer-bottom {
   border-top: 1px solid rgba(255,255,255,0.06) !important;
   padding-top: 28px !important;
@@ -901,10 +888,9 @@
   margin: 0 auto !important;
 }
 
-/* Copyright text */
 #page-footer .footer-copy span,
 #page-footer .footer-copy {
-  font-size: 0.62rem !important;
+  font-size: 0.72rem !important;
   letter-spacing: 0.08em !important;
   color: rgba(160, 160, 166, 0.45) !important;
   text-transform: uppercase !important;
@@ -913,7 +899,7 @@
 /* Policy link */
 #page-footer .policy-link,
 #page-footer .footer-links a {
-  font-size: 0.62rem !important;
+  font-size: 0.72rem !important;
   color: rgba(160, 160, 166, 0.45) !important;
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
@@ -926,14 +912,37 @@
 /* Made-by */
 #page-footer .made-by-mobile,
 #page-footer .made-by {
-  color: rgba(160, 160, 166, 0.3) !important;
-  font-size: 0.6rem !important;
+  color: rgba(200, 200, 206, 0.55) !important;
+  font-size: 0.72rem !important;
+}
+
+#page-footer .made-by-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: block;
 }
 
 @media (max-width: 768px) {
   #page-footer .footer-inner {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 32px !important;
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    text-align: center !important;
   }
   .footer-brand { grid-column: 1 / -1; }
+
+  #page-footer .footer-nav a {
+    color: rgba(245, 240, 235, 0.72) !important;
+  }
+  #page-footer .footer-col h3 {
+    color: rgba(141, 90, 151, 0.85) !important;
+  }
+  #page-footer .footer-copy span,
+  #page-footer .footer-copy {
+    color: rgba(160, 160, 166, 0.6) !important;
+  }
+  #page-footer .policy-link,
+  #page-footer .footer-links a {
+    color: rgba(160, 160, 166, 0.6) !important;
+  }
 }

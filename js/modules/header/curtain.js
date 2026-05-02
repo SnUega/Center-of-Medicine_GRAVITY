@@ -52,6 +52,16 @@ export class CurtainMode {
     if (contactsSection) {
       const contactsClone = contactsSection.cloneNode(true);
       container.appendChild(contactsClone);
+
+      const bookingBtn = contactsClone.querySelector('.booking-btn, #menu-booking-btn');
+      if (bookingBtn) {
+        bookingBtn.removeAttribute('id');
+        bookingBtn.addEventListener('click', () => {
+          if (typeof showSonlineWidget === 'function') {
+            showSonlineWidget(window.sonlineWidgetOptions);
+          }
+        });
+      }
     }
 
     return container;
@@ -103,12 +113,22 @@ export class CurtainMode {
     this.curtainContentEl = this.buildCurtainContent();
     if (this.curtainContentEl) this.elements.menuPanel.appendChild(this.curtainContentEl);
 
+    // Задаём стартовые размеры через DOM (getComputedStyle возвращает 64px)
+    const vw = window.innerWidth;
+    const narrow = vw <= 768;
+    const fullW = Math.round(vw * (narrow ? 0.92 : 0.80));
+    const row = this.elements.header.querySelector('.navc-row');
+    const fullH = row ? row.offsetHeight : 64;
+    this.elements.header.style.width = fullW + 'px';
+    this.elements.header.style.height = fullH + 'px';
+    this.elements.header.style.borderRadius = '50px';
+
     gsap.to(this.elements.header, { 
       width: 64, 
       height: 64, 
       padding: 0, 
       borderRadius: 32, 
-      duration: 0.4, 
+      duration: 0.2, 
       ease: 'power1.inOut' 
     });
 

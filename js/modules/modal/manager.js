@@ -100,7 +100,7 @@ export class ModalManager {
    */
   openModal(modal) {
     const modalElement = typeof modal === 'string' ? 
-      $(modal) : modal;
+      $('#' + modal) : modal;
     
     if (!modalElement) {
       const errorHandler = getErrorHandler();

@@ -2,6 +2,7 @@
  * Карусель отзывов
  */
 
+import { attachTooltip } from './tooltip.js';
 import { getSliderData } from './data.js';
 
 /**
@@ -32,13 +33,10 @@ export class ReviewsManager {
       </div>
     `).join('');
 
+    const backArrowSvg = '<svg class="alr-back-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12H3M12 19l-7-7 7-7"/></svg>';
+    const lockIconSvg = '<svg class="alr-leave-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
     carousel.innerHTML = `
       <div class="alr-reviews-content">
-        <h3 class="alr-reviews-heading">Отзывы</h3>
-        <button class="alr-btn alr-reviews-back" data-action="close">
-          <span class="arrow">←</span>
-          <span>Назад</span>
-        </button>
         <div class="alr-reviews-rows">
           <div class="alr-reviews-row" data-row="top">
             <div class="alr-reviews-track">${createItemsHTML(topReviews)}</div>
@@ -47,9 +45,21 @@ export class ReviewsManager {
             <div class="alr-reviews-track">${createItemsHTML(bottomReviews)}</div>
           </div>
         </div>
+        <div class="alr-reviews-footer">
+          <button type="button" class="alr-btn alr-reviews-back" data-action="close">
+            <span class="alr-back-label">${backArrowSvg} Назад</span>
+          </button>
+          <span class="alr-reviews-leave-wrap" data-tooltip="Эта функция в разработке" tabindex="0" role="button" aria-label="Оставить отзыв — эта функция в разработке">
+            <button type="button" class="alr-btn alr-reviews-leave" disabled aria-disabled="true" tabindex="-1">
+              <span class="alr-leave-label">${lockIconSvg} Оставить отзыв</span>
+            </button>
+          </span>
+        </div>
       </div>
     `;
-    
+
+
+    attachTooltip(carousel.querySelector('.alr-reviews-leave-wrap'));
     this.setupReviewsAutoplay(carousel);
     
     return carousel;
@@ -199,5 +209,5 @@ export class ReviewsManager {
     
     track._bottomAnimation = animation;
   }
-}
 
+}

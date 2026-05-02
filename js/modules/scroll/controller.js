@@ -7,7 +7,9 @@ import { waitForLibrary, isMobileDevice} from '../../core/utils.js';
 import { CONFIG } from '../../core/config.js';
 import { getErrorHandler, ERROR_SEVERITY } from '../../core/errors.js';
 import { registerLenis, lockScroll, unlockScroll } from '../../core/scroll-lock.js';
-import { gsap, ScrollTrigger, Lenis } from '../../lib.js';
+import Lenis from '@studio-freight/lenis';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -301,8 +303,14 @@ export async function initScrollController(options) {
   return scrollControllerInstance;
 }
 
-// Автоматическая инициализация только при явной разметке (после сборки script[src*="lenis"] не срабатывает)
-if (typeof window !== 'undefined' && document.querySelector('[data-uses-lenis]') !== null) {
-  initScrollController();
+// Автоматическая инициализация если модуль загружен напрямую
+if (typeof window !== 'undefined') {
+  // Проверяем, нужно ли автоматически инициализировать
+  const shouldAutoInit = document.querySelector('[data-uses-lenis]') !== null || 
+                         document.querySelector('script[src*="lenis"]') !== null;
+  
+  if (shouldAutoInit) {
+    initScrollController();
+  }
 }
 

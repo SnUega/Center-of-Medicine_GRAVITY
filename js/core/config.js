@@ -58,7 +58,7 @@ export const CONFIG = {
     BASE_URL: '/api',
     ENDPOINTS: {
       CONTACT_FORM: '/contact',
-      BLOG_ARTICLES: '/blog/articles',
+      BLOG_ARTICLES: '/blog-articles.json',
       REVIEWS: '/reviews'
     },
     TIMEOUT: 10000

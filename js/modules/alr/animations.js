@@ -32,27 +32,8 @@ function injectPanelDecor(el, zone = 'content') {
     `;
     el.appendChild(overlay);
   } else {
-    // Large logo watermark centred in slider zone
+    // Зона слайдера без логотипа на фоне
     el.style.background = '#232328';
-    const logo = document.createElement('img');
-    logo.src = 'img/logo.PNG';
-    logo.alt = '';
-    logo.setAttribute('aria-hidden', 'true');
-    logo.style.cssText = `
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: min(75%, 480px);
-      height: auto;
-      opacity: 0.1;
-      pointer-events: none;
-      z-index: 0;
-      filter: grayscale(1);
-      user-select: none;
-      object-fit: contain;
-    `;
-    el.appendChild(logo);
   }
 }
 
@@ -91,74 +72,71 @@ export class AnimationsManager {
     
     this.context.isAnimating = false;
     
-    const leftCard = this.context.cards[0];
+    const leftCard  = this.context.cards[0];
     const rightCard = this.context.cards[2];
-    
-    if (this.context.cards && this.context.cards.length > 0) {
-      gsap.set(this.context.cards, {
-        xPercent: 0,
-        x: 0,
-        clearProps: 'transform'
-      });
-    }
-    
-    if (leftCard) gsap.set(leftCard, { xPercent: 0, zIndex: 10, force3D: true });
-    if (rightCard) gsap.set(rightCard, { xPercent: 0, zIndex: 10, force3D: true });
-    
     const centerCard = this.context.cards[1];
     
-    // Цвета фона центральной карточки (должны совпадать с CSS)
+    if (this.context.cards && this.context.cards.length > 0) {
+      gsap.set(this.context.cards, { xPercent: 0, x: 0, clearProps: 'transform,opacity' });
+    }
+    if (leftCard)  gsap.set(leftCard,  { xPercent: 0, zIndex: 10 });
+    if (rightCard) gsap.set(rightCard, { xPercent: 0, zIndex: 10 });
+
+    // ── Точные координаты через getBoundingClientRect ──
+    const wrapRect   = this.context.wrap.getBoundingClientRect();
+    const centerRect = centerCard.getBoundingClientRect();
+
+    // Левая половина = левая часть центральной карточки
+    const lLeft  = centerRect.left  - wrapRect.left;
+    const lWidth = centerRect.width / 2;
+    // Правая половина = правая часть центральной карточки
+    const rLeft  = lLeft + lWidth;
+    const rWidth = lWidth;
+
     const centerBg = 'linear-gradient(to bottom, #2E2E33 0%, #35353b 100%)';
-    
-    // Левая половина
+
     const leftHalf = document.createElement('div');
     leftHalf.className = 'alr-center-half-left';
     leftHalf.style.cssText = `
       position: absolute;
-      top: 0;
-      left: 33.333%;
-      width: 16.6665%;
-      height: 100%;
+      top: 0; height: 100%;
+      left: ${lLeft}px; width: ${lWidth}px;
       background: ${centerBg};
       z-index: 3;
       transform-origin: left center;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       will-change: transform;
     `;
-    
-    // Правая половина
+
     const rightHalf = document.createElement('div');
     rightHalf.className = 'alr-center-half-right';
     rightHalf.style.cssText = `
       position: absolute;
-      top: 0;
-      left: 50%;
-      width: 16.6665%;
-      height: 100%;
+      top: 0; height: 100%;
+      left: ${rLeft}px; width: ${rWidth}px;
       background: ${centerBg};
       z-index: 3;
       transform-origin: right center;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       will-change: transform;
     `;
 
-    // Клонируем ракету в каждую половину для визуальной непрерывности
+    // ── Ракета: в каждой половине показываем свою часть ──
+    // Ракета занимает 100% centerCard. Каждая половина = 50% centerCard.
+    // Чтобы картинка выглядела непрерывной: width = 200% half = 100% centerCard,
+    // leftHalf показывает левую половину (left: 0),
+    // rightHalf показывает правую (left: -100%)
     const rocketSrc = centerCard.querySelector('.alr-card-rocket');
-    const makeRocketClone = (isLeft) => {
+    const makeRocket = (isLeft) => {
       if (!rocketSrc) return null;
       const r = document.createElement('img');
       r.src = rocketSrc.src;
       r.setAttribute('aria-hidden', 'true');
-      // Половина — это 1/6 общей ширины секции, ракета занимает 100% центральной карточки (1/3)
-      // Чтобы отрезок ракеты выглядел как часть целой: шириной 300% и смещённый
       r.style.cssText = `
         position: absolute;
-        top: 0;
-        left: ${isLeft ? '-200%' : '0'};
-        width: 300%;
-        height: 100%;
+        top: 0; height: 100%;
+        left: ${isLeft ? '0' : '-100%'};
+        width: 200%;
         object-fit: cover;
         object-position: center top;
         opacity: 0.55;
@@ -168,100 +146,34 @@ export class AnimationsManager {
       `;
       return r;
     };
-    const rLeft  = makeRocketClone(true);
-    const rRight = makeRocketClone(false);
-    if (rLeft)  leftHalf.appendChild(rLeft);
-    if (rRight) rightHalf.appendChild(rRight);
+    const rLeft2  = makeRocket(true);
+    const rRight2 = makeRocket(false);
+    if (rLeft2)  leftHalf.appendChild(rLeft2);
+    if (rRight2) rightHalf.appendChild(rRight2);
 
-    // Тёмный overlay поверх ракеты (как в CSS ::after центральной карточки)
+    // ── Тёмный gradient overlay ──
     const makeOverlay = () => {
       const ov = document.createElement('div');
       ov.setAttribute('aria-hidden', 'true');
       ov.style.cssText = `
-        position: absolute;
-        inset: 0;
+        position: absolute; inset: 0;
         background: linear-gradient(to top, rgba(30,30,35,0.7) 0%, rgba(30,30,35,0.2) 60%, transparent 100%);
-        pointer-events: none;
-        z-index: 1;
+        pointer-events: none; z-index: 1;
       `;
       return ov;
     };
     leftHalf.appendChild(makeOverlay());
     rightHalf.appendChild(makeOverlay());
-    
-    // Копируем контент
-    const centerContent = centerCard.querySelector('.alr-main-content');
-    if (centerContent) {
-      const leftContent = centerContent.cloneNode(true);
-      const rightContent = centerContent.cloneNode(true);
-      
-      leftContent.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 0;
-        transform: translateY(-50%);
-        width: 200%;
-        text-align: center;
-        padding: 0 20px;
-        box-sizing: border-box;
-        z-index: 2;
-      `;
-      
-      rightContent.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: -100%;
-        transform: translateY(-50%);
-        width: 200%;
-        text-align: center;
-        padding: 0 20px;
-        box-sizing: border-box;
-        z-index: 2;
-      `;
-      
-      const leftH3 = leftContent.querySelector('h3');
-      const rightH3 = rightContent.querySelector('h3');
-      
-      if (leftH3) {
-        leftH3.style.cssText = `
-          font-size: 32px;
-          font-weight: 400;
-          margin-bottom: 24px;
-          color: #F5F0EB;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          margin-top: 0;
-          padding: 0;
-          line-height: 1.2;
-        `;
-      }
-      
-      if (rightH3) {
-        rightH3.style.cssText = `
-          font-size: 32px;
-          font-weight: 400;
-          margin-bottom: 24px;
-          color: #F5F0EB;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          margin-top: 0;
-          padding: 0;
-          line-height: 1.2;
-        `;
-      }
-      
-      leftHalf.appendChild(leftContent);
-      rightHalf.appendChild(rightContent);
-    }
-    
+
+    const mainContent = centerCard.querySelector('.alr-main-content');
+    const titleEl = mainContent && mainContent.querySelector('h3');
+    const btnEl = mainContent && mainContent.querySelector('.alr-btn');
+    const openSlideTargets = [titleEl, btnEl].filter(Boolean);
+
     this.context.wrap.appendChild(leftHalf);
     this.context.wrap.appendChild(rightHalf);
     this.context.tempLayers.push(leftHalf, rightHalf);
-    
-    if (centerContent) {
-      gsap.set(centerContent, { opacity: 0 });
-    }
-    
+
     this.context.currentTimeline = gsap.timeline({
       onComplete: () => {
         this.context.isAnimating = false;
@@ -292,12 +204,14 @@ export class AnimationsManager {
     this.context.tempLayers.push(panel);
     
     this.context.currentTimeline
+      .to(openSlideTargets, { y: 14, opacity: 0, duration: 0.25, ease: 'power2.in' }, 0)
+      .set(centerCard, { opacity: 0 }, 0.25)
       .to(leftCard, {
         xPercent: -100,
         duration: .7,
         ease: 'power2.out',
         force3D: true
-      })
+      }, 0)
       .to(rightCard, {
         xPercent: 100,
         duration: .7,
@@ -317,7 +231,7 @@ export class AnimationsManager {
         force3D: true
       }, 0)
       .set(this.context.wrap, { gridTemplateColumns: '0fr 1fr 0fr' }, 2.2);
-    
+
     const backBtn = panel.querySelector('.alr-reviews-back');
     if (backBtn) backBtn.addEventListener('click', () => this.context.cardsManager.closeCard());
   }
@@ -492,17 +406,26 @@ export class AnimationsManager {
             });
           }
           
-          if (leftHalf) gsap.set(leftHalf, { x: 0, clearProps: 'transform' });
-          if (rightHalf) gsap.set(rightHalf, { x: 0, clearProps: 'transform' });
-          
-          const centerCard = this.context.cards[1];
-          const centerContent = centerCard.querySelector('.alr-main-content');
-          if (centerContent) {
-            gsap.set(centerContent, { opacity: 1 });
-          }
-          
           this.context.cardsManager.cleanupAfterClose();
-          this.context.isAnimating = false;
+
+          const centerCard = this.context.cards[1];
+          const mainContent = centerCard && centerCard.querySelector('.alr-main-content');
+          const titleEl = mainContent && mainContent.querySelector('h3');
+          const btnEl = mainContent && mainContent.querySelector('.alr-btn');
+
+          gsap.set(centerCard, { opacity: 1 });
+          if (titleEl || btnEl) {
+            gsap.set([titleEl, btnEl].filter(Boolean), { y: 14, opacity: 1 });
+            gsap.to([titleEl, btnEl].filter(Boolean), {
+              y: 0,
+              duration: 0.35,
+              ease: 'power2.out',
+              clearProps: 'transform',
+              onComplete: () => { this.context.isAnimating = false; }
+            });
+          } else {
+            this.context.isAnimating = false;
+          }
         }
       });
       
@@ -556,4 +479,3 @@ export class AnimationsManager {
     }
   }
 }
-

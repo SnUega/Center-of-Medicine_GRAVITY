@@ -1,57 +1,12 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync, mkdirSync, readdirSync, statSync, existsSync } from 'fs';
-
-const basePath = process.env.BASE_PATH || '/';
-
-/** Подставляет base в url(...img/...) в CSS. При base './' — относительные пути ../img (из assets/), иначе base + img */
-function cssBasePathPlugin() {
-  return {
-    name: 'css-base-path',
-    transform(code, id) {
-      if (!id.endsWith('.css')) return null;
-      if (basePath === '/') return null;
-      const isRelative = basePath === './';
-      const imgPath = isRelative ? '../img/' : `${basePath.replace(/\/$/, '')}/img/`;
-      return {
-        code: code
-          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/img\//g, `url('${imgPath}`)
-          .replace(/url\s*\(\s*['"]?\.\.\/\.\.\/\.\.\/img\//g, `url('${imgPath}`),
-        map: null
-      };
-    }
-  };
-}
-
-/** Копирует папку img в dist при сборке (Vite по умолчанию копирует только public/) */
-function copyImgPlugin() {
-  return {
-    name: 'copy-img',
-    closeBundle() {
-      const src = resolve(__dirname, 'img');
-      const dest = resolve(__dirname, 'dist', 'img');
-      if (!existsSync(src)) return;
-      function copyDir(s, d) {
-        mkdirSync(d, { recursive: true });
-        for (const entry of readdirSync(s)) {
-          const srcPath = resolve(s, entry);
-          const destPath = resolve(d, entry);
-          if (statSync(srcPath).isDirectory()) copyDir(srcPath, destPath);
-          else copyFileSync(srcPath, destPath);
-        }
-      }
-      copyDir(src, dest);
-    }
-  };
-}
 
 export default defineConfig({
   // Корень проекта — папка с index.html
   root: '.',
-  plugins: [cssBasePathPlugin(), copyImgPlugin()],
 
-  // base: по умолчанию '/' (продакшен на своём домене, локальный dev). Для деплоя на GitHub Pages задаётся через BASE_PATH в workflow.
-  base: basePath,
+  // Базовый путь: для GitHub Pages project site — /repo-name/, для своего домена — /
+  base: process.env.BASE_PATH || '/',
 
   build: {
     outDir: 'dist',
@@ -66,19 +21,29 @@ export default defineConfig({
         massage:     resolve(__dirname, 'html/massage.html'),
         blog:        resolve(__dirname, 'html/blog.html'),
         article:     resolve(__dirname, 'html/article-template.html'),
+        policy:      resolve(__dirname, 'html/policy.html'),
       },
 
       output: {
+        // JS: именованные чанки в assets/
         chunkFileNames:  'assets/[name]-[hash].js',
         entryFileNames:  'assets/[name]-[hash].js',
+        // CSS: в assets/
         assetFileNames:  'assets/[name]-[hash][extname]',
-        // manualChunks отключены: при base-path (GitHub Pages) в чанках оставался голый импорт "gsap",
-        // браузер не мог его разрешить. GSAP и Lenis теперь входят в entry-чанки.
+
+        // Выносим gsap и lenis в отдельный vendor-чанк
+        // чтобы браузер кэшировал их независимо от кода проекта
+        manualChunks(id) {
+          if (id.includes('node_modules/gsap')) return 'vendor-gsap';
+          if (id.includes('node_modules/lenis')) return 'vendor-lenis';
+        }
       }
     },
 
-    // Сжатие — esbuild быстрее terser, результат сопоставимый
     minify: 'esbuild',
+    esbuild: {
+      drop: ['console', 'debugger'],
+    },
 
     // sourcemap только для разработки — в продакшене не нужен
     sourcemap: false,

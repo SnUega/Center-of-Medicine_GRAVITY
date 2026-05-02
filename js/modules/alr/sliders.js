@@ -2,7 +2,6 @@
  * Слайдеры для наград и лицензий
  */
 
-import { debounce } from '../../core/utils.js';
 import { getSliderData } from './data.js';
 import { gsap } from '../../lib.js';
 
@@ -31,8 +30,8 @@ export class SlidersManager {
           ${items}
         </div>
         <div class="alr-slider-nav">
-          <button class="alr-slider-btn prev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-          <button class="alr-slider-btn next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+          <button class="alr-slider-btn prev" aria-label="Назад"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+          <button class="alr-slider-btn next" aria-label="Вперёд"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         </div>
       </div>
     `;
@@ -48,44 +47,6 @@ export class SlidersManager {
     const nav = slider.querySelector('.alr-slider-nav');
     const container = slider.querySelector('.slider-container');
     if (!prevBtn || !nextBtn || items.length === 0 || !container) return;
-    
-    const positionNav = () => {
-      const activeItem = items.find(el => el.classList.contains('active')) || items[0];
-      const img = activeItem ? activeItem.querySelector('.alr-slider-image') : null;
-      const root = slider.querySelector('.alr-slider-content');
-      if (!nav || !img || !root) return;
-      const imgRect = img.getBoundingClientRect();
-      const rootRect = root.getBoundingClientRect();
-      const centerY = imgRect.top - rootRect.top + imgRect.height / 2;
-      const leftX = imgRect.left - rootRect.left;
-      const rightX = imgRect.right - rootRect.left;
-
-      Object.assign(nav.style, {
-        position: 'absolute',
-        top: '0px',
-        left: '0px',
-        right: '0px',
-        bottom: '0px',
-        width: '100%',
-        height: '100%',
-        transform: 'none',
-        pointerEvents: 'none'
-      });
-
-      const GAP_PX = 48;
-      [prevBtn, nextBtn].forEach(btn => {
-        btn.style.position = 'absolute';
-        btn.style.top = centerY + 'px';
-        btn.style.transform = 'translate(-50%, -50%)';
-        btn.style.pointerEvents = 'auto';
-      });
-      prevBtn.style.left = Math.max(0, leftX - GAP_PX) + 'px';
-      nextBtn.style.left = (rightX + GAP_PX) + 'px';
-    };
-    
-    positionNav();
-    const debouncedPositionNav = debounce(positionNav, 250);
-    window.addEventListener('resize', debouncedPositionNav);
     
     let currentIndex = items.findIndex(el => el.classList.contains('active'));
     if (currentIndex < 0) currentIndex = 0;
@@ -133,7 +94,6 @@ export class SlidersManager {
         outgoing.classList.remove('active');
         currentIndex = nextIndex;
         isAnimating = false;
-        positionNav();
         const elementsToClean = [outgoing, incoming].filter(el => el != null);
         if (elementsToClean.length > 0) {
           gsap.set(elementsToClean, { clearProps: 'zIndex' });

@@ -251,10 +251,10 @@ body.services-page main.services-page-layout:has(~ #revealWrap) {
 }
 
 .services-hero-title {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: clamp(1.125rem, 2.4vw, 2.15rem);
   font-weight: var(--font-weight-normal);
   color: var(--color-text-white);
-  line-height: var(--line-height-tight);
+  line-height: 1.15;
   margin-bottom: 1.5rem;
   letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
@@ -361,7 +361,7 @@ body.services-page main.services-page-layout:has(~ #revealWrap) {
   min-height: 100vh;
   padding: clamp(2rem, 4vw, 4rem);
   padding-top: 0; /* Breadcrumbs handles top spacing */
-  background: var(--color-bg-light);
+  background: var(--gradient-section-upper);
   position: relative;
   z-index: 1; /* Below header */
   /* Плавное расширение синхронно с анимацией скрытия hero */
@@ -502,10 +502,8 @@ body.services-page #revealWrap {
   margin-bottom: 2rem;
   margin-top: 2.5rem;
   padding-bottom: 1rem;
+  padding-left: 10px; /* место под вертикальную полоску L (2px) */
   border-bottom: 2px solid transparent;
-  background: linear-gradient(to right, var(--color-accent), transparent) no-repeat;
-  background-size: 100% 2px;
-  background-position: bottom;
   position: relative;
   letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
@@ -515,14 +513,21 @@ body.services-page #revealWrap {
   margin-top: 0;
 }
 
+/* Угол L — один элемент, два фона: шва в углу нет ни на одном брейкпоинте */
 .category-title::before {
   content: "";
-  width: 5px;
-  height: 28px;
-  background: linear-gradient(180deg, var(--color-accent-dark) 0%, var(--color-accent) 100%);
-  border-radius: 3px;
-  box-shadow: 0 2px 8px rgba(141, 90, 151, 0.3);
-  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(180deg, transparent 0%, var(--color-accent) 35%, var(--color-accent) 100%),
+    linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent) 15%, transparent 70%);
+  background-size: 2px 100%, 100% 2px;
+  background-position: left 0 top 0, left 0 bottom 0;
+  background-repeat: no-repeat;
 }
 
 /* ============================================
@@ -599,6 +604,11 @@ body.services-page #revealWrap {
 .nested-accordion-price {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
+  background: linear-gradient(90deg, rgba(200,190,210,0.95) 0%, rgba(245,240,235,1) 40%, rgba(180,170,195,0.9) 70%, rgba(245,240,235,1) 100%);
+  background-size: 250% 100%;
+  animation: priceShimmer 6s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: var(--color-accent);
   white-space: nowrap;
   margin-right: 0.5rem;
@@ -724,7 +734,9 @@ body.services-page #revealWrap {
 .price-item-value {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-text-primary) 100%);
+  background: linear-gradient(90deg, rgba(200,190,210,0.95) 0%, rgba(245,240,235,1) 40%, rgba(180,170,195,0.9) 70%, rgba(245,240,235,1) 100%);
+  background-size: 250% 100%;
+  animation: priceShimmer 6s ease-in-out infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -771,7 +783,7 @@ body.services-page #revealWrap {
    ============================================ */
 .accordion-item {
   background: var(--color-bg-white);
-  border-radius: 12px;
+  border-radius: 0 50px 50px 0;
   margin-bottom: 0.5rem;
   overflow: hidden;
   /* Градиентная рамка — акцентный + серебряный */
@@ -791,7 +803,7 @@ body.services-page #revealWrap {
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 12px;
+  border-radius: 0 50px 50px 0;
   padding: 2px;
   background: linear-gradient(93.85deg, rgba(141, 90, 151, 0.25) 0%, rgba(141, 90, 151, 0.08) 50%, rgba(107, 107, 115, 0.3) 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -833,7 +845,7 @@ body.services-page #revealWrap {
 
 .accordion-header {
   width: 100%;
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 2.5rem 1.25rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -923,7 +935,9 @@ body.services-page #revealWrap {
 .accordion-price {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-text-primary) 100%);
+  background: linear-gradient(90deg, rgba(200,190,210,0.95) 0%, rgba(245,240,235,1) 40%, rgba(180,170,195,0.9) 70%, rgba(245,240,235,1) 100%);
+  background-size: 250% 100%;
+  animation: priceShimmer 6s ease-in-out infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -939,13 +953,20 @@ body.services-page #revealWrap {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-accent) 0%, transparent 100%);
-  opacity: 0.3;
+  background: linear-gradient(90deg,
+    rgba(141, 90, 151, 0.9) 0%,
+    rgba(200, 190, 210, 0.55) 35%,
+    rgba(141, 90, 151, 0.95) 65%,
+    rgba(200, 190, 210, 0.55) 100%
+  );
+  background-size: 250% 100%;
+  animation: priceShimmer 6s ease-in-out infinite;
+  opacity: 0.7;
   transition: opacity 0.3s ease;
 }
 
 .accordion-item:hover .accordion-price::after {
-  opacity: 0.6;
+  opacity: 1;
 }
 
 .accordion-price.free {
@@ -956,7 +977,14 @@ body.services-page #revealWrap {
 }
 
 .accordion-price.free::after {
-  background: linear-gradient(90deg, var(--color-success) 0%, transparent 100%);
+  background: linear-gradient(90deg,
+    rgba(74, 222, 128, 0.9) 0%,
+    rgba(34, 197, 94, 0.5) 35%,
+    rgba(74, 222, 128, 0.95) 65%,
+    rgba(34, 197, 94, 0.5) 100%
+  );
+  background-size: 250% 100%;
+  animation: priceShimmer 6s ease-in-out infinite;
 }
 
 .accordion-icon {
@@ -1028,7 +1056,7 @@ body.services-page #revealWrap {
 }
 
 .accordion-body {
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 2.5rem 1.5rem 1.5rem;
   border-top: 1px solid var(--color-border-light);
   margin-top: 0;
   padding-top: 1.25rem;
@@ -1132,7 +1160,7 @@ body.services-page #revealWrap {
   border-radius: 6px;
   border: none;
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-normal);
   color: var(--color-text-white);
   text-decoration: none;
   cursor: pointer;
@@ -1144,96 +1172,6 @@ body.services-page #revealWrap {
 .accordion-content > .accordion-cta {
   margin: 1.5rem;
   margin-top: 0;
-}
-
-/* Service Stubs (Reviews & Articles) */
-.service-stubs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--color-border-light);
-}
-
-.stub-section {
-  background: var(--color-bg-light);
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.stub-section h5 {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.stub-section h5 svg {
-  width: 16px;
-  height: 16px;
-  color: var(--color-accent);
-}
-
-.stub-placeholder {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.stub-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  background: var(--color-bg-white);
-  border-radius: 6px;
-  border: 1px dashed var(--color-border);
-}
-
-.stub-avatar {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, rgba(141, 90, 151, 0.1) 0%, rgba(69, 196, 249, 0.1) 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-accent);
-  font-size: var(--font-size-xs);
-}
-
-.stub-text {
-  flex: 1;
-}
-
-.stub-text span {
-  display: block;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.stub-text strong {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.stub-badge {
-  font-size: 10px;
-  padding: 0.2rem 0.4rem;
-  background: rgba(141, 90, 151, 0.1);
-  color: var(--color-accent);
-  border-radius: 4px;
-  font-weight: var(--font-weight-medium);
-}
-
-@media (max-width: 768px) {
-  .service-stubs {
-    grid-template-columns: 1fr;
-  }
 }
 
 .accordion-cta {
@@ -1701,7 +1639,7 @@ body.services-page #revealWrap {
   }
   
   .services-hero-title {
-    font-size: clamp(2rem, 6vw, 2.5rem);
+    font-size: clamp(1.35rem, 4.5vw, 2.1rem);
   }
   
   .services-hero-description {
@@ -1866,123 +1804,6 @@ body.services-page #revealWrap {
 
 /* Header on services pages inherits main styles */
 
-/* ============================================
-   Contact Modal
-   ============================================ */
-.contact-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.contact-modal.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.contact-modal-content {
-  background: var(--color-bg-white);
-  border-radius: 20px;
-  width: 90%;
-  max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  transform: translateY(20px) scale(0.95);
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  padding: 2.5rem;
-}
-
-.contact-modal.active .contact-modal-content {
-  transform: translateY(0) scale(1);
-}
-
-.contact-modal-close {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: var(--color-bg-light);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  transition: all 0.3s ease;
-}
-
-.contact-modal-close:hover {
-  background: var(--color-accent);
-  color: var(--color-text-white);
-}
-
-.contact-modal-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.contact-modal-header h2 {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.contact-modal-header p {
-  font-size: var(--font-size-base);
-  color: var(--color-text-muted);
-}
-
-.contact-modal-form .form-group {
-  margin-bottom: 1.25rem;
-}
-
-.contact-modal-form label {
-  display: block;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.contact-modal-form input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: var(--font-size-base);
-  transition: all 0.3s ease;
-}
-
-.contact-modal-form input:focus {
-  outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(141, 90, 151, 0.1);
-}
-
-.contact-modal-form input.error {
-  border-color: var(--color-error);
-  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
-}
-
-.contact-modal-form .field-error {
-  color: var(--color-error);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-
 .form-submit-btn {
   width: 100%;
   padding: 1rem;
@@ -2016,6 +1837,10 @@ body.services-page #revealWrap {
     padding: 4.5rem 1rem 2rem;
   }
   
+  .services-hero-title {
+    font-size: clamp(1.15rem, 5vw, 1.75rem);
+  }
+  
   .services-hero-badge {
     font-size: var(--font-size-xs);
     padding: 0.4rem 0.75rem;
@@ -2034,64 +1859,6 @@ body.services-page #revealWrap {
   }
 }
 
-/* ============================================
-   Menu adjustments for services pages
-   ============================================ */
-/* Настройка отступов для соцкнопок на страницах услуг */
-body.services-page .menu-contacts-section {
-  margin-top: auto;
-  padding-top: 12px !important; /* Отступ от divider */
-  margin-bottom: 36px;
-  flex: 0 0 auto;
-}
-
-body.services-page .menu-right .blog-container {
-  margin-top: auto;
-  margin-bottom: 36px;
-  flex: 0 0 auto;
-}
-
-/* Desktop / MacBook */
-@media (min-width: 1367px) {
-  body.services-page .menu-contacts-section {
-    padding-top: 12px !important;
-    margin-bottom: 36px;
-  }
-  
-  body.services-page .menu-right .blog-container {
-    margin-top: auto;
-    margin-bottom: 36px;
-    flex: 0 0 auto;
-  }
-}
-
-/* iPad Pro landscape */
-@media (min-width: 1024px) and (max-width: 1135px) and (orientation: landscape) {
-  body.services-page .menu-contacts-section {
-    padding-top: 12px !important;
-    margin-bottom: 28px;
-  }
-  
-  body.services-page .menu-right .blog-container {
-    margin-top: auto;
-    margin-bottom: 28px;
-    flex: 0 0 auto;
-  }
-}
-
-/* iPad Air landscape */
-@media (min-width: 1136px) and (max-width: 1180px) and (orientation: landscape) {
-  body.services-page .menu-contacts-section {
-    padding-top: 12px !important;
-    margin-bottom: 34px;
-  }
-  
-  body.services-page .menu-right .blog-container {
-    margin-top: auto;
-    margin-bottom: 34px;
-    flex: 0 0 auto;
-  }
-}
 
 /* ============================================
    Sub-page Enhancement — Typography & Polish
@@ -2158,4 +1925,9 @@ a.breadcrumbs-link--home {
 a.breadcrumbs-link--home:hover {
   color: var(--color-accent);
   gap: 0.55rem;
+}
+
+@keyframes priceShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }

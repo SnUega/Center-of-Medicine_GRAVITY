@@ -2,6 +2,7 @@
  * Мобильные модалки и слайдеры
  */
 
+import { attachTooltip } from './tooltip.js';
 import { debounce } from '../../core/utils.js';
 import { lockScroll, unlockScroll } from '../../core/scroll-lock.js';
 import { getSliderData } from './data.js';
@@ -24,23 +25,27 @@ export class MobileManager {
     
     lockScroll();
     
-    if (window.modalManager) {
-      window.modalManager.openModal(modal);
-      this.context.isAnimating = false;
-    } else {
-      gsap.fromTo(modal, 
-        { opacity: 0, scale: 0.8 },
-        { 
-          opacity: 1, 
-          scale: 1, 
-          duration: 0.3, 
-          ease: "back.out(1.7)",
-          onComplete: () => {
-            this.context.isAnimating = false;
-          }
-        }
-      );
+    // Анимация появления без modalManager (он смешивает два механизма блокировки)
+    const content = modal.querySelector('.modal-content');
+    if (content) {
+      content.style.clipPath = 'inset(0 0 100% 0)';
+      content.style.opacity = '0';
+      content.style.transform = 'translateY(-8px) scale(0.985)';
+      content.style.transformOrigin = 'top center';
     }
+    modal.style.backgroundColor = 'rgba(0,0,0,0)';
+
+    requestAnimationFrame(() => {
+      modal.style.transition = 'background-color 350ms ease';
+      modal.style.backgroundColor = 'rgba(0,0,0,0.55)';
+      if (content) {
+        content.style.transition = 'clip-path 380ms ease, transform 380ms ease, opacity 380ms ease';
+        content.style.clipPath = 'inset(0 0 0 0)';
+        content.style.opacity = '1';
+        content.style.transform = 'translateY(0) scale(1)';
+      }
+      setTimeout(() => { this.context.isAnimating = false; }, 400);
+    });
   }
 
   /**
@@ -48,32 +53,27 @@ export class MobileManager {
    */
   closeCardMobile() {
     const modal = document.querySelector('.alr-mobile-modal');
-    if (modal) {
-      if (window.modalManager) {
-        window.modalManager.closeModal(modal);
-        setTimeout(() => {
-          modal.remove();
-          unlockScroll();
-          this.context.cardsManager.resetALRState();
-          this.context.isAnimating = false;
-          this.context.activeCard = null;
-        }, 200);
-      } else {
-        gsap.to(modal, {
-          opacity: 0,
-          scale: 0.8,
-          duration: 0.2,
-          ease: "back.in(1.7)",
-          onComplete: () => {
-            modal.remove();
-            unlockScroll();
-            this.context.cardsManager.resetALRState();
-            this.context.isAnimating = false;
-            this.context.activeCard = null;
-          }
-        });
-      }
+    if (!modal) return;
+
+    const content = modal.querySelector('.modal-content');
+    
+    // Анимация закрытия
+    modal.style.transition = 'background-color 300ms ease';
+    modal.style.backgroundColor = 'rgba(0,0,0,0)';
+    if (content) {
+      content.style.transition = 'clip-path 300ms ease, transform 300ms ease, opacity 300ms ease';
+      content.style.clipPath = 'inset(0 0 100% 0)';
+      content.style.opacity = '0';
+      content.style.transform = 'translateY(-8px) scale(0.985)';
     }
+
+    setTimeout(() => {
+      modal.remove();
+      unlockScroll();
+      this.context.cardsManager.resetALRState();
+      this.context.isAnimating = false;
+      this.context.activeCard = null;
+    }, 320);
   }
 
   /**
@@ -83,34 +83,51 @@ export class MobileManager {
     const modal = document.createElement('div');
     modal.className = 'alr-mobile-modal';
     const sliderData = getSliderData(cardType);
-    
+    const lockIconSvg = '<svg class="alr-leave-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+
+    // Используем alr-modal-close вместо modal-close — чтобы modalManager не перехватил
     modal.innerHTML = `
       <div class="modal-content">
-        <button class="modal-close">✕</button>
+        <button class="alr-modal-close" aria-label="Закрыть"></button>
         <div class="modal-body">
           <h2>${cardType === 'awards' ? 'Награды' : cardType === 'licenses' ? 'Лицензии' : 'Отзывы'}</h2>
           <div class="mobile-slider">
-            ${this.createMobileSliderHTML(cardType, sliderData)}
+            ${this.createMobileSliderHTML(cardType, sliderData, lockIconSvg)}
           </div>
         </div>
       </div>
     `;
-    
+
+    // Закрытие по крестику — напрямую, без modalManager
+    const closeBtn = modal.querySelector('.alr-modal-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeCardMobile();
+      });
+    }
+
+    // Закрытие по клику на backdrop
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) this.closeCardMobile();
+    });
+
     this.setupMobileImageSlider(modal);
-    
+    attachTooltip(modal.querySelector('.alr-reviews-leave-wrap'));
+
+
     return modal;
   }
-
   /**
    * Создание HTML мобильного слайдера
    */
-  createMobileSliderHTML(cardType, data) {
+  createMobileSliderHTML(cardType, data, lockIconSvg = '') {
     if (cardType === 'reviews') {
       return `
-        <div class="mobile-slider-wrapper">
+        <div class="mobile-slider-wrapper" data-alr-slider="reviews">
           ${data.map((review, index) => `
             <div class="mobile-slider-item ${index === 0 ? 'active' : ''}" data-index="${index}">
-              <div class="mobile-slider-container">
+              <div class="mobile-slider-container mobile-slider-container--review" data-alr-review-scroll aria-label="Отзыв, при длинном тексте доступна прокрутка">
                 <div class="mobile-review-card">
                   <div class="mobile-review-header">
                     <div class="mobile-review-info">
@@ -125,9 +142,14 @@ export class MobileManager {
             </div>
           `).join('')}
         </div>
-        <div class="mobile-slider-nav">
-          <button class="mobile-slider-btn prev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-          <button class="mobile-slider-btn next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+        <div class="alr-mobile-reviews-panel">
+          <button class="mobile-slider-btn prev" aria-label="Назад"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+          <span class="alr-reviews-leave-wrap" data-tooltip="Эта функция в разработке" tabindex="0" role="button" aria-label="Оставить отзыв — эта функция в разработке">
+            <button type="button" class="alr-btn alr-reviews-leave" disabled aria-disabled="true" tabindex="-1">
+              <span class="alr-leave-label">${lockIconSvg} Оставить отзыв</span>
+            </button>
+          </span>
+          <button class="mobile-slider-btn next" aria-label="Вперёд"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         </div>
       `;
     } else {
@@ -145,8 +167,8 @@ export class MobileManager {
           ${items}
         </div>
         <div class="mobile-slider-nav">
-          <button class="mobile-slider-btn prev">←</button>
-          <button class="mobile-slider-btn next">→</button>
+          <button class="mobile-slider-btn prev" aria-label="Назад"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+          <button class="mobile-slider-btn next" aria-label="Вперёд"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         </div>
       `;
     }
@@ -162,44 +184,47 @@ export class MobileManager {
     let currentIndex = 0;
 
     const wrapper = modal.querySelector('.mobile-slider-wrapper');
-    if (wrapper) {
-      wrapper.style.position = 'relative';
-      wrapper.style.height = 'auto';
-      wrapper.style.minHeight = '300px';
-    }
+    // wrapper размер управляется через flex в CSS
 
-    const recalibrateWrapper = () => {
-      if (!wrapper || !items.length) return;
-      let maxHeight = 0;
-      items.forEach((itm) => {
-        const prevVis = itm.style.visibility;
-        const prevDisp = itm.style.display;
-        itm.style.visibility = 'hidden';
-        itm.style.display = 'block';
-        const h = itm.offsetHeight || itm.scrollHeight || 0;
-        if (h > maxHeight) maxHeight = h;
-        itm.style.visibility = prevVis || '';
-        itm.style.display = prevDisp || '';
-      });
-      if (maxHeight > 0) wrapper.style.height = maxHeight + 'px';
-    };
+    // recalibrateWrapper не нужен — wrapper управляется через flex: 1
+    const recalibrateWrapper = () => {};
+
+    const isReviewsSlider = items[0] && items[0].querySelector('.mobile-review-card');
+    const REVIEW_SLIDE_MIN_HEIGHT = 353;
 
     items.forEach((item, i) => {
       const img = item.querySelector('.mobile-slider-image');
       const desc = item.querySelector('.mobile-slider-description');
       const container = item.querySelector('.mobile-slider-container');
 
-      item.style.position = 'absolute';
-      item.style.top = '0';
-      item.style.left = '0';
-      item.style.width = '100%';
-      item.style.height = '100%';
+      if (isReviewsSlider) {
+        if (i === 0) {
+          item.style.position = 'relative';
+          item.style.height = 'auto';
+          item.style.minHeight = REVIEW_SLIDE_MIN_HEIGHT + 'px';
+          item.style.visibility = 'visible';
+        } else {
+          item.style.position = 'absolute';
+          item.style.top = '0';
+          item.style.left = '0';
+          item.style.width = '100%';
+          item.style.height = 'auto';
+          item.style.minHeight = REVIEW_SLIDE_MIN_HEIGHT + 'px';
+          item.style.visibility = 'hidden';
+          item.style.pointerEvents = 'none';
+        }
+      } else {
+        item.style.position = 'absolute';
+        item.style.top = '0';
+        item.style.left = '0';
+        item.style.width = '100%';
+        item.style.height = '100%';
+        item.style.visibility = i === 0 ? 'visible' : 'hidden';
+      }
       item.style.display = 'block';
-      item.style.visibility = i === 0 ? 'visible' : 'hidden';
 
       if (container) {
         container.style.position = 'relative';
-        container.style.height = '100%';
         container.style.overflow = 'hidden';
       }
 
@@ -231,41 +256,7 @@ export class MobileManager {
     window.addEventListener('resize', debouncedRecalibrate);
     setTimeout(recalibrateWrapper, 0);
 
-    const nav = modal.querySelector('.mobile-slider-nav');
-    if (nav) {
-      nav.style.position = 'relative';
-      nav.style.width = '100%';
-      nav.style.height = 'auto';
-      nav.style.display = 'flex';
-      nav.style.justifyContent = 'center';
-      nav.style.alignItems = 'center';
-      nav.style.gap = '20px';
-      nav.style.margin = '0';
-      nav.style.pointerEvents = 'auto';
-      nav.style.zIndex = '10';
-    }
-
-    if (prevBtn) {
-      prevBtn.style.position = 'static';
-      prevBtn.style.left = 'auto';
-      prevBtn.style.right = 'auto';
-      prevBtn.style.top = 'auto';
-      prevBtn.style.transform = 'none';
-      prevBtn.style.pointerEvents = 'auto';
-      prevBtn.style.zIndex = 'auto';
-      prevBtn.style.margin = '0';
-    }
-
-    if (nextBtn) {
-      nextBtn.style.position = 'static';
-      nextBtn.style.left = 'auto';
-      nextBtn.style.right = 'auto';
-      nextBtn.style.top = 'auto';
-      nextBtn.style.transform = 'none';
-      nextBtn.style.pointerEvents = 'auto';
-      nextBtn.style.zIndex = 'auto';
-      nextBtn.style.margin = '0';
-    }
+    // Nav и кнопки управляются CSS, inline стили не нужны
 
     let isAnimating = false;
 
@@ -307,6 +298,26 @@ export class MobileManager {
         outgoing.classList.remove('active');
         currentIndex = nextIndex;
         isAnimating = false;
+        if (isReviewsSlider) {
+          items.forEach((it, idx) => {
+            if (idx === currentIndex) {
+              it.style.position = 'relative';
+              it.style.height = 'auto';
+              it.style.minHeight = REVIEW_SLIDE_MIN_HEIGHT + 'px';
+              it.style.visibility = 'visible';
+              it.style.pointerEvents = '';
+            } else {
+              it.style.position = 'absolute';
+              it.style.top = '0';
+              it.style.left = '0';
+              it.style.width = '100%';
+              it.style.height = 'auto';
+              it.style.minHeight = REVIEW_SLIDE_MIN_HEIGHT + 'px';
+              it.style.visibility = 'hidden';
+              it.style.pointerEvents = 'none';
+            }
+          });
+        }
         recalibrateWrapper();
       });
     };
@@ -321,5 +332,5 @@ export class MobileManager {
       animateTo(nextIndex, 'next');
     });
   }
-}
 
+}

@@ -15,8 +15,8 @@ export class CustomScrollbar {
   constructor(options = {}) {
     this.options = {
       width: options.width || 4,
-      color: options.color || 'rgba(51, 51, 51, 0.85)',
-      colorHover: options.colorHover || 'rgba(51, 51, 51, 1)',
+      color: options.color || 'rgba(141, 90, 151, 0.7)',
+      colorHover: options.colorHover || 'rgba(141, 90, 151, 1)',
       idleDelay: options.idleDelay || 1000,
       ...options
     };

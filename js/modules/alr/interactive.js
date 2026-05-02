@@ -84,10 +84,29 @@ export class ALRInteractive {
     // Инициализируем функциональность
     this.setupEventListeners();
     this.setupHoverEffects();
+    this.setupAlrBtnRipple();
     setupMobileHint();
     this.setupResizeHandler();
 
     // ALRInteractive initialized
+  }
+
+  /**
+   * Радиальная заливка кнопок от точки входа курсора (как у кнопки «Отправить» в контактах)
+   */
+  setupAlrBtnRipple() {
+    const section = document.getElementById('alr');
+    if (!section) return;
+    const buttons = section.querySelectorAll('.alr-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('mouseenter', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        btn.style.setProperty('--x', `${x}px`);
+        btn.style.setProperty('--y', `${y}px`);
+      });
+    });
   }
 
   /**

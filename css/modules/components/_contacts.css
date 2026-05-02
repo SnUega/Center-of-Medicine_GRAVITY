@@ -2,7 +2,7 @@
 
     .contacts-section {
       padding: 60px 10%;
-      background: var(--color-bg-lighter);
+      background: var(--gradient-contacts);
       border-radius: 0 0 48px 48px;
       overflow: hidden; /* не позволяем карте/контенту наезжать на футер */
       position: relative;
@@ -95,17 +95,11 @@
       font-size: var(--font-size-sm);
       font-family: 'Unbounded', sans-serif;
       font-weight: var(--font-weight-light);
-      color: var(--color-text-muted);
+      color: var(--color-text-secondary);
       pointer-events: none;
       transition: all 0.2s ease;
       background: var(--color-bg-lighter);
       padding: 0 4px;
-    }
-
-    .input-group:hover,
-    .input-group:focus {
-      border-radius: 12px;
-      box-shadow: 0 0 8px rgba(141, 90, 151, 0.3);
     }
 
     .input-group input:focus + label,
@@ -161,7 +155,7 @@
       left: 0;
       width: 100%;
       background-color: var(--color-bg-lighter);
-      border-radius: 12px;
+      border-radius: 0 0 12px 12px;
       margin-top: 8px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
       display: none;
@@ -178,14 +172,27 @@
     }
 
     .custom-dropdown .option {
+      position: relative;
       padding: 12px 16px;
-      transition: background-color 0.2s ease;
+      overflow: hidden;
+      transition: color 0.25s ease;
       color: var(--color-text-primary);
     }
 
-    .custom-dropdown .option:hover {
-      background-color: var(--color-accent-light);
-      color: var(--color-text-primary);
+    .custom-dropdown .option::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 0;
+      height: 100%;
+      background: var(--color-accent-light);
+      transition: width 0.24s linear;
+      z-index: 0;
+    }
+
+    .custom-dropdown .option:hover::before {
+      width: 100%;
     }
 
     .custom-dropdown .option:first-child:hover {
@@ -249,10 +256,11 @@
 
     .checkbox-wrapper .checkmark {
       position: absolute;
-      left: 2px;
-      top: .5px;
+      left: 10px;
+      top: 8px;
       width: 20px;
       height: 20px;
+      transform: translate(calc(-50% + 1px), calc(-50% + 1px));
       stroke: var(--color-text-muted);
       stroke-width: 2.5;
       fill: none;
@@ -280,7 +288,7 @@
       padding: 12px 36px;
       background: var(--color-bg-lighter);
       border: 2px solid var(--color-accent);
-      color: var(--color-accent);
+      color: #c9a8d0;
       font-size: var(--font-size-xs);
       font-weight: var(--font-weight-normal);
       text-transform: uppercase;
@@ -356,7 +364,7 @@
     }
 
     .contact-info p strong {
-      color: var(--color-accent);
+      color: #c9a8d0;
       font-weight: var(--font-weight-normal);
       display: block;
       font-size: 0.6em;
@@ -466,6 +474,7 @@
     }
 
     #map-wrapper {
+      position: relative;
       width: 90%;
       max-width: 500px;
       height: 0;
@@ -474,12 +483,63 @@
       /* transition убран - используется GSAP для анимации */
     }
 
-    #map-placeholder {
+    #map-placeholder,
+    #map-wrapper #map {
       width: 500px;
       height: 500px;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+
+    /* ── Map: responsive fix ── */
+    /* Карта всегда заполняет враппер по ширине.
+       JS читает wrapper.getBoundingClientRect().width для targetHeight — этого достаточно. */
+    @media (max-width: 900px) {
+      #map-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden !important; /* не даём карте вылезти */
+      }
+      #map-placeholder,
+      #map-wrapper #map {
+        width: 100% !important;   /* Яндекс.Карты корректно работают с 100% */
+        min-width: 0 !important;
+        height: 100% !important;  /* JS контролирует высоту враппера */
+        min-height: 280px;
+      }
+    }
+
+    .map-route-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 10px;
+      background: rgba(14, 14, 18, 0.92);
+      backdrop-filter: blur(12px);
+      color: var(--color-text-white);
+      font-family: 'Unbounded', Arial, sans-serif;
+      font-size: 0.65rem;
+      font-weight: var(--font-weight-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .map-route-btn:hover {
+      background: var(--color-accent);
+      color: var(--color-text-white);
+      border-color: var(--color-accent);
     }
 
       /*End Contact-section */
@@ -495,12 +555,14 @@
 
   .map-contacts {
     flex-direction: column;
+    gap: 2rem;
   }
 
   .contact-info {
     min-height: auto;
     gap: 1.2rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    width: 100%;
   }
 
   .contact-info h2 {
@@ -510,6 +572,73 @@
   .contact-info p {
     font-size: clamp(0.9rem, 3.5vw, 1.1rem);
     line-height: 1.5;
+  }
+
+  /* Map: полная ширина, без overflow */
+  #map-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 14px;
+    overflow: hidden !important;
+  }
+
+  /* Форма: чекбокс и лейбл внутри блока формы, без переполнения */
+  .form-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .form-bottom-row .checkbox-wrapper {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .form-bottom-row .checkbox-wrapper label {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    padding-left: 28px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    font-size: 0.65rem;
+    line-height: 1.35;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .form-bottom-row .checkbox-wrapper label::before {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+
+  .form-bottom-row .checkbox-wrapper .checkmark {
+    top: 50% !important;
+    transform: translate(calc(-50% + 1px), -50%) !important;
+  }
+
+  .form-bottom-row .button-wrapper {
+    justify-content: center;
+  }
+}
+
+/* ── iPad Mini (768px) / Air (820px) portrait map fix ── */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+  #map-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden !important;
+  }
+  #map-placeholder,
+  #map-wrapper #map {
+    width: 100% !important;
+    min-width: 0 !important;
   }
 }
 
@@ -525,6 +654,34 @@
   box-shadow: none !important;
   transition: border-color 0.3s ease !important;
 }
+
+/* Автозаполнение (в т.ч. выбор из системного списка) — вид как у обычного поля: фон под цвет формы, только подчёркивание */
+#contactForm .form-top-row input:-webkit-autofill,
+#contactForm .form-top-row input:-webkit-autofill:hover,
+#contactForm .form-top-row input:-webkit-autofill:focus,
+#contactForm .form-top-row input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg-lighter) inset !important;
+  box-shadow: 0 0 0 1000px var(--color-bg-lighter) inset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(141, 90, 151, 0.3) !important;
+  border-radius: 0 !important;
+  background-color: var(--color-bg-lighter) !important;
+  filter: none !important; /* нужен в Firefox, иначе inset не применяется */
+  transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s !important;
+  caret-color: var(--color-text-primary);
+}
+/* Стандартный :autofill (Chrome 115+, не только -webkit-) */
+@supports (selector(:autofill)) {
+  #contactForm .form-top-row input:autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-bg-lighter) inset !important;
+    box-shadow: 0 0 0 1000px var(--color-bg-lighter) inset !important;
+    -webkit-text-fill-color: var(--color-text-primary) !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(141, 90, 151, 0.3) !important;
+    background-color: var(--color-bg-lighter) !important;
+  }
+}
 .form-top-row input:focus {
   border-bottom-color: var(--color-accent) !important;
   box-shadow: none !important;
@@ -535,6 +692,7 @@
   left: 0 !important;
   background: transparent !important;
   padding: 0 !important;
+  color: var(--color-text-secondary) !important;
 }
 .input-group input:focus + label,
 .input-group input:not(:placeholder-shown) + label {
@@ -570,21 +728,26 @@
 .custom-dropdown.open .selected { border-bottom-color: var(--color-accent) !important; }
 .custom-dropdown .dropdown-options {
   background: var(--color-bg-darker) !important;
-  border-radius: 0 !important;
+  border-radius: 0 0 12px 12px !important;
   border: 1px solid rgba(141, 90, 151, 0.2) !important;
   border-top: none !important;
   box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
   margin-top: 0 !important;
 }
 .custom-dropdown .option { border-radius: 0 !important; }
-.custom-dropdown .option:hover {
-  background: rgba(141, 90, 151, 0.1) !important;
-  color: var(--color-text-primary) !important;
-}
 .custom-dropdown .option.selected-option {
   background: rgba(141, 90, 151, 0.2) !important;
   color: var(--color-accent) !important;
   border-radius: 0 !important;
+}
+
+.checkbox-wrapper label a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.checkbox-wrapper label a:hover {
+  color: #b8b0c8;
 }
 
 .checkbox-wrapper label::before {
@@ -603,8 +766,9 @@
   stroke: var(--color-accent) !important;
   width: 18px !important;
   height: 18px !important;
-  left: 0 !important;
-  top: 0 !important;
+  left: 9px !important;
+  top: 9px !important;
+  transform: translate(calc(-50% + 1px), calc(-50% + 1px)) !important;
 }
 
 .input-group.error input,

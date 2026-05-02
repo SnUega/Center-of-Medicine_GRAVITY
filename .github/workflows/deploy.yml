@@ -33,7 +33,8 @@ jobs:
 
       - name: Build
         env:
-          BASE_PATH: './'
+          # Для GitHub Pages project site (сайт в подпапке) — обязателен слэш в начале и в конце
+          BASE_PATH: '/${{ github.event.repository.name }}/'
         run: npm run build
 
       - name: Setup Pages

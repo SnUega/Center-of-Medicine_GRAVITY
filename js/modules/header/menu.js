@@ -353,17 +353,8 @@ export class HeaderMenu {
       return;
     }
     
-    // Блокировка открытия меню во время intro-анимации
-    const html = document.documentElement;
-    const isIntroActive = html.classList.contains('intro-start') || 
-                          html.classList.contains('intro-animating');
-    
     const isOpening = this.openTl.reversed() || this.openTl.progress() === 0;
     if (isOpening) {
-      // Если intro-анимация активна, блокируем открытие меню
-      if (isIntroActive) {
-        return;
-      }
       this.openTl.timeScale(1).play(0);
       this.elements.burger.setAttribute('aria-expanded', 'true');
       setTimeout(() => addBlogScrollHandlers(this.elements.menuInner), 1000);

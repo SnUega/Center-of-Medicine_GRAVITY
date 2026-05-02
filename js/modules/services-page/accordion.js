@@ -107,32 +107,29 @@ function handleAccordionClick(event) {
   
   const isOpen = header.getAttribute('aria-expanded') === 'true';
   
-  // Сохраняем позицию заголовка относительно viewport до любых изменений
-  const headerRect = header.getBoundingClientRect();
-  const headerTopBefore = headerRect.top;
+  // Фиксируем позицию заголовка в viewport — скролл не должен уносить пользователя
+  const headerTopBefore = header.getBoundingClientRect().top;
+  const runScrollCompensation = () => {
+    const drift = header.getBoundingClientRect().top - headerTopBefore;
+    if (Math.abs(drift) > 2) {
+      window.scrollBy({ top: drift, behavior: 'instant' });
+    }
+  };
   
-  // Закрываем другие аккордеоны на странице
   closeOtherAccordions(item);
-  
-  // Переключаем текущий
   toggleAccordion(header, content, !isOpen, true);
   
-  // Компенсируем сдвиг позиции после закрытия других аккордеонов
-  // Используем requestAnimationFrame для синхронизации с рендером
+  // Сразу после синхронного изменения (закрытие других) компенсируем скролл
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const newHeaderRect = header.getBoundingClientRect();
-      const drift = newHeaderRect.top - headerTopBefore;
-      
-      // Если заголовок сдвинулся более чем на 5px, корректируем скролл
-      if (Math.abs(drift) > 5) {
-        window.scrollBy({
-          top: drift,
-          behavior: 'instant'
-        });
-      }
-    });
+    requestAnimationFrame(runScrollCompensation);
   });
+  
+  // После окончания анимации раскрытия/закрытия снова фиксируем позицию
+  content.addEventListener('transitionend', function onAccordionTransitionEnd(e) {
+    if (e.target !== content || e.propertyName !== 'max-height') return;
+    content.removeEventListener('transitionend', onAccordionTransitionEnd);
+    runScrollCompensation();
+  }, { once: true });
 }
 
 /**

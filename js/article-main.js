@@ -193,9 +193,6 @@ function initShareButtons() {
         case 'telegram':
           shareUrl = `https://t.me/share/url?url=${pageUrl}&text=${pageTitle}`;
           break;
-        case 'whatsapp':
-          shareUrl = `https://wa.me/?text=${pageTitle}%20${pageUrl}`;
-          break;
         case 'copy':
           navigator.clipboard.writeText(window.location.href).then(() => {
             showToast('Ссылка скопирована!');

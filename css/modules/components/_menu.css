@@ -4,8 +4,8 @@
         height: 65vh !important;
       }
       .menu-container, .navc-menu {
-        width: 65%;
-        left: 17.5%;
+        width: 72%;
+        left: 14%;
       }
       .menu-inner, .navc-inner {
         height: 65vh !important;
@@ -129,12 +129,12 @@
       transform: translateX(-50%);
       width: 100%;
       height: 100%;
-      background: var(--color-bg-header-solid, #6b6b73);
-      border: none; /* remove frame */
+      background: #5a5a62;
+      border: none;
       border-radius: 50px;
       clip-path: inset(0 50% 0 50% round 50px);
       overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.04);
       will-change: clip-path;
     }
 
@@ -155,7 +155,7 @@
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
         z-index: 50 !important;
-        background: var(--color-bg-header-solid, #6b6b73) !important;
+        background: #5a5a62 !important;
         will-change: transform;
         pointer-events: auto;
         touch-action: pan-y;
@@ -172,7 +172,7 @@
         height: 100dvh !important;
         max-height: 100dvh !important;
         border-radius: 0 !important;
-        background: var(--color-bg-header-solid, #6b6b73) !important;
+        background: #5a5a62 !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
         clip-path: none !important;
@@ -185,6 +185,8 @@
       }
       .navc-panel.curtain-floating::before,
       .menu-panel.curtain-floating::before { content: none !important; display: none !important; }
+      .navc-panel.curtain-floating::after,
+      .menu-panel.curtain-floating::after { content: none !important; display: none !important; }
 
       /* Ensure the curtain stacking is above content but under header */
       .navc-menu.curtain-open,
@@ -197,7 +199,7 @@
         display: none !important;
       }
 
-      /* Content layout inside curtain */
+      /* Content layout inside curtain — фон на весь скролл, чтобы не было резкой границы */
       .curtain-content {
         display: flex;
         flex-direction: column;
@@ -208,6 +210,7 @@
         margin: 0;
         min-height: 100vh;
         box-sizing: border-box;
+        background: var(--color-bg-header-solid, #38383f);
       }
 
       /* removed in-panel button */
@@ -216,7 +219,11 @@
         position: static;
         transform: none;
         align-self: center;
-        margin-bottom: 4px;
+        margin-bottom: 12px;
+      }
+      .curtain-content .navc-menu-logo img {
+        height: 120px !important;
+        width: auto !important;
       }
 
       .curtain-content h2 {
@@ -245,6 +252,16 @@
         text-transform: uppercase;
         display: block;
         padding: 12px 0;
+        overflow: visible;
+      }
+      .curtain-content .navc-links a::before {
+        display: none;
+      }
+      .curtain-content .navc-links a span {
+        transform: none !important;
+      }
+      .curtain-content .navc-links li {
+        perspective: none;
       }
 
       .curtain-divider { border: none; border-top: 1px solid rgba(245, 240, 235, 0.12); margin: 10px 0; }
@@ -272,6 +289,26 @@
       @media (min-width: 820px) and (max-width: 1023px) and (orientation: portrait) {
         .curtain-content .blog-container { max-height: 520px; }
         .curtain-content .blog-scroll-area { max-height: 400px; }
+      }
+
+      /* ── iPad Air / Mini portrait: лучшие пропорции мини-статей ── */
+      /* iPad Mini (768px): чуть крупнее чем телефон */
+      @media (min-width: 768px) and (max-width: 768px) and (orientation: portrait) {
+        .curtain-content .blog-article { gap: 18px; }
+        .curtain-content .blog-stub .article-thumbnail { width: 88px !important; height: 88px !important; }
+        .curtain-content .blog-stub .article-title { font-size: 14px; }
+        .curtain-content .blog-stub .article-preview { font-size: 12px; -webkit-line-clamp: 3; }
+        .curtain-content .blog-container { max-height: 460px; }
+        .curtain-content .blog-scroll-area { max-height: 360px; }
+      }
+      /* iPad Air (820px) portrait: увеличенные карточки статей */
+      @media (min-width: 819px) and (max-width: 1023px) and (orientation: portrait) {
+        .curtain-content .blog-article { gap: 20px; }
+        .curtain-content .blog-stub .article-thumbnail { width: 100px !important; height: 100px !important; }
+        .curtain-content .blog-stub .article-title { font-size: 15px !important; line-height: 1.35; }
+        .curtain-content .blog-stub .article-preview { font-size: 13px !important; -webkit-line-clamp: 3; line-clamp: 3; }
+        .curtain-content .blog-stub .article-content { padding-right: 4.5rem !important; }
+        .curtain-content .blog-stub { padding: 1rem; margin-bottom: 14px; }
       }
       
       .curtain-content .blog-article {
@@ -362,6 +399,14 @@
 
         /* Дополнительные стили для очень маленьких экранов */
         @media (max-width: 480px) {
+          .blog-stub .article-content,
+          .curtain-content .blog-stub .article-content {
+            padding-left: 0.25rem !important;
+          }
+          .blog-article,
+          .curtain-content .blog-article {
+            padding-left: 0.5rem !important;
+          }
           .curtain-content .blog-stub {
             padding: 0.5rem;
             margin-bottom: 10px;
@@ -371,11 +416,13 @@
             padding-right: 3.5rem !important;
           }
 
+          .article-title,
           .curtain-content .blog-stub .article-title {
-            font-size: 13px;
+            font-size: clamp(0.7rem, 3.5vw, 0.85rem);
             line-height: 1.2;
           }
 
+          .article-preview,
           .curtain-content .blog-stub .article-preview {
             font-size: 11px;
             -webkit-line-clamp: 2;
@@ -441,10 +488,11 @@
         flex-wrap: wrap;
       }
       
+      .curtain-content .contact-btn::before,
+      .curtain-content .contact-btn::after { display: none !important; }
       .curtain-content .contact-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        position: relative;
+        display: block;
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -457,19 +505,31 @@
       }
       
       .curtain-content .contact-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        background: var(--color-accent);
         border-color: var(--color-accent);
+        transform: translateY(1px);
+        box-shadow: inset 0 4px 8px rgba(46, 46, 51, 0.4);
       }
       
       .curtain-content .contact-btn svg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         width: 18px;
         height: 18px;
-        transition: transform 0.15s ease;
+        transition: all 0.15s ease;
       }
       
       .curtain-content .contact-btn:hover svg {
-        transform: scale(1.1);
+        transform: translate(-50%, -50%) scale(0.95);
+        color: var(--color-primary, #2E2E33) !important;
+        fill: var(--color-primary, #2E2E33) !important;
+      }
+      .curtain-content .contact-btn.email-btn:hover svg,
+      .curtain-content .contact-btn.booking-btn:hover svg {
+        fill: none !important;
+        stroke: var(--color-primary, #2E2E33) !important;
       }
       
       /* iPad Pro (портрет): увеличить размер соц.кнопок и нижний отступ */
@@ -483,29 +543,7 @@
         .curtain-content .menu-contacts-section { margin-bottom: 10px;}
       }
       
-      .curtain-content .phone-btn:hover {
-        background: var(--color-accent);
-        color: var(--color-text-white);
-      }
-      
-      .curtain-content .email-btn:hover {
-        background: #ff6b6b;
-        color: var(--color-text-white);
-      }
-      .curtain-content .email-btn:hover svg {
-        fill: none !important;
-        stroke: var(--color-text-white) !important;
-      }
-      
-      .curtain-content .whatsapp-btn:hover {
-        background: #25d366;
-        color: var(--color-text-white);
-      }
-      
-      .curtain-content .telegram-btn:hover {
-        background: #0088cc;
-        color: var(--color-text-white);
-      }
+      /* Individual button hover colors removed — unified via .contact-btn:hover above */
 
       /* Hide desktop inner in curtain layout; keep stem visible (panel lives inside stem) */
       .navc-menu.curtain-open .navc-inner,
@@ -521,11 +559,24 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--color-bg-header-solid, #6b6b73);
+      background: #5a5a62;
       transform-origin: center center;
       transform: scaleX(var(--panelScale, 1));
       will-change: transform;
       pointer-events: none;
+    }
+
+    /* Лёгкая текстура/градиент — убираем тени, фон не плоский */
+    .menu-panel::after, .navc-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        radial-gradient(ellipse 90% 80% at 50% 35%, rgba(255,255,255,0.03) 0%, transparent 55%),
+        linear-gradient(165deg, transparent 0%, rgba(0,0,0,0.02) 45%, rgba(255,255,255,0.015) 100%);
+      pointer-events: none;
+      z-index: 20;
     }
 
     .menu-inner, .navc-inner {
@@ -546,32 +597,30 @@
 
     .navc-menu-logo {
       position: absolute;
-      top: 56px; /* move logo lower */
+      top: 56px;
       left: 50%;
       transform: translateX(-50%);
-      font-weight: 800;
-      letter-spacing: .15em;
-      font-size: 18px;
       background: transparent;
-      color: var(--color-text-white);
       border-radius: 18px;
-      padding: 10px 16px;
+      padding: 8px 16px;
       box-shadow: none;
       z-index: 22;
     }
+    .navc-menu-logo img {
+      height: 160px !important;
+      width: auto !important;
+    }
 
-    /* Верхняя секция: Меню слева, Блог справа */
     .menu-top-section {
       display: flex;
       justify-content: space-between;
       flex: 1;
-      margin-top: 20px;
+      padding: 140px 40px 24px;
     }
 
     .menu-left,
     .menu-right {
       flex: 1;
-      padding: 40px;
       z-index: 2;
     }
 
@@ -579,8 +628,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      height: 100%;
+      padding-right: 30px;
     }
 
     .menu-left h2 {
@@ -591,7 +639,6 @@
       margin-bottom: 1.875rem;
       color: var(--menu-text);
       text-align: left;
-      flex: 0 0 auto;
     }
     
     .menu-right h2 {
@@ -603,8 +650,6 @@
       color: var(--menu-text);
       text-align: center;
       width: 100%;
-      margin-top: 0;
-      flex: 0 0 auto;
     }
 
     .menu-left ul {
@@ -620,26 +665,93 @@
       text-align: center;
     }
 
-    .menu-left a {
+    .menu-left li,
+    #page-footer .footer-nav li {
+      perspective: 600px;
+    }
+
+    .menu-left a,
+    #page-footer .footer-nav a {
       text-decoration: none;
-      color: var(--menu-text-secondary);
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+      padding: 0.3em 0;
+      transition: color 0.35s ease;
+    }
+
+    .menu-left a {
+      color: var(--color-text-primary);
       font-size: var(--font-size-sm);
       font-weight: var(--font-weight-light);
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      transition: color 0.3s ease;
     }
 
-    .menu-left a:hover {
-      color: var(--menu-primary);
+    .menu-left a::before,
+    #page-footer .footer-nav a::before {
+      content: attr(data-hover);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      color: var(--color-text-white);
+      transform: translateY(-100%) rotateX(90deg);
+      transform-origin: bottom center;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .menu-left a span,
+    #page-footer .footer-nav a span {
+      display: inline-block;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: top center;
+    }
+
+    .menu-left a:hover span,
+    #page-footer .footer-nav a:hover span {
+      transform: translateY(100%) rotateX(-90deg);
+    }
+
+    .menu-left a:hover::before,
+    #page-footer .footer-nav a:hover::before {
+      transform: translateY(0) rotateX(0deg);
+    }
+
+    .menu-left a::after,
+    #page-footer .footer-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: rgba(245, 240, 235, 0.7);
+      transform: scaleX(0);
+      transform-origin: center center;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+    }
+
+    .menu-left a:hover::after,
+    #page-footer .footer-nav a:hover::after {
+      transform: scaleX(1);
+    }
+
+    /* Соц. кнопки в меню — без подчёркивания из навигации */
+    .contact-btn::before,
+    .contact-btn::after,
+    .curtain-content .contact-btn::before,
+    .curtain-content .contact-btn::after {
+      display: none !important;
     }
 
     .menu-right {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      justify-content: flex-start;
-      height: 100%;
     }
     
     .menu-right h2 {
@@ -855,10 +967,11 @@
       }
     }
 
+    .contact-btn::before,
+    .contact-btn::after { display: none !important; }
     .contact-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      position: relative;
+      display: block;
       width: var(--contact-btn-size);
       height: var(--contact-btn-size);
       border-radius: 50%;
@@ -869,6 +982,12 @@
       transition: all 0.15s ease;
       box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.15);
       flex-shrink: 0;
+      padding: 0;
+      margin: 0;
+      line-height: 0;
+      font-size: 0;
+      cursor: pointer;
+      box-sizing: border-box;
     }
 
     .contact-btn:hover {
@@ -883,20 +1002,25 @@
       color: var(--color-primary, #2E2E33) !important;
       fill: var(--color-primary, #2E2E33) !important;
     }
-    /* Email envelope should remain stroked, not filled */
-    .contact-btn.email-btn:hover svg {
+    .contact-btn.email-btn:hover svg,
+    .contact-btn.booking-btn:hover svg {
       fill: none !important;
       stroke: var(--color-primary, #2E2E33) !important;
     }
 
     .contact-btn svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: var(--contact-btn-icon-size);
       height: var(--contact-btn-icon-size);
+      display: block;
       transition: all 0.15s ease;
     }
 
     .contact-btn:hover svg {
-      transform: scale(0.95);
+      transform: translate(-50%, -50%) scale(0.95);
     }
 
     body.lock-scroll {
@@ -990,6 +1114,7 @@
       }
       
       .menu-top-section { justify-content: space-between; gap: 20px; align-items: stretch; }
+      .menu-left, .menu-right { display: flex; flex-direction: column; }
       .menu-left { align-items: stretch; justify-content: flex-start; height: 100%; }
       .menu-left h2 { text-align: center; margin-bottom: 1.1rem; flex: 0 0 auto; }
       .menu-left ul { margin-top: 12px; flex: 0 0 auto; }
@@ -1089,5 +1214,26 @@
       .menu-right .blog-article {
         padding: 0.825rem;
         margin-bottom: 0.825rem;
+      }
+    }
+
+    /* Footer: отключаем rotation + line на мобильных (как у меню в curtain) */
+    @media (max-width: 768px) {
+      #page-footer .footer-nav li {
+        perspective: none;
+      }
+      #page-footer .footer-nav a {
+        overflow: visible;
+        padding: 0;
+      }
+      #page-footer .footer-nav a::before {
+        display: none;
+      }
+      #page-footer .footer-nav a span {
+        transform: none;
+        transition: none;
+      }
+      #page-footer .footer-nav a::after {
+        display: none;
       }
     }

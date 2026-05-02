@@ -16,6 +16,7 @@ import { initErrorHandler } from './core/errors.js';
 import { EVENTS } from './core/constants.js';
 import { initBlogArticleClicks } from './modules/blog-ui/index.js';
 import { initSunkenParallax } from './modules/sunken/index.js';
+import { initHeroBg } from './modules/hero-bg.js';
 
 export { $, $$, debounce, throttle, waitForLibrary, isMobile, isTablet, isDesktop, isMobileDevice } from './core/utils.js';
 export { getComputedStyleValue, setStyles, scrollToElement, createElement } from './core/dom.js';
@@ -46,6 +47,20 @@ async function init() {
 
     // gsap, ScrollTrigger, Lenis загружены синхронно через lib.js —
     // регистрация плагинов уже выполнена там, ждать ничего не нужно.
+
+    // ЭТАП 1 — Header инициализируется первым.
+    // Header слушает событие PRELOADER_COMPLETE и запускает intro-анимацию после него.
+    try {
+      const { initHeaderMenu } = await import('./modules/header/index.js');
+      initHeaderMenu();
+    } catch (error) {
+      errorHandler.handle(error, {
+        module: 'main',
+        severity: 'high',
+        context: { stage: 'header-init' },
+        userMessage: null
+      });
+    }
 
     // Динамически импортируем модули
     // Этап 2: Простые модули скролла и услуг
@@ -108,10 +123,6 @@ async function init() {
       const { initGallery } = await import('./modules/gallery/index.js');
       initGallery();
       
-      // Импортируем меню хедера
-      const { initHeaderMenu } = await import('./modules/header/index.js');
-      initHeaderMenu();
-      
       // Импортируем ALR интерактивные карточки
       const { initALRInteractive } = await import('./modules/alr/index.js');
       initALRInteractive();
@@ -137,6 +148,9 @@ async function init() {
 
     // Параллакс sunken-секций
     initSunkenParallax();
+    
+    // Фоновая анимация hero
+    initHeroBg();
     
     // Обработка якорных ссылок при загрузке страницы
     if (window.location.hash) {

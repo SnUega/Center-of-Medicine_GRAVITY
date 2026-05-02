@@ -43,52 +43,56 @@
     box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 
-/* Inner wrapper to anchor the moving highlight independent of scrollLeft */
+/* Inner wrapper to anchor the moving highlight independent of scrollLeft (как в блоге .filter-tags-inner) */
 .category-nav-inner {
   position: relative;
   display: inline-flex;
-  gap: 20px;
+  gap: 12px;
 }
 
-
-    .category-nav-inner > .category-highlight {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      /* Silver pill highlight */
-      background: linear-gradient(135deg, rgba(225,225,235,0.95) 0%, rgba(200,200,215,0.9) 100%);
-      border-radius: 22px;
-      z-index: 2;
-      transition: left .95s cubic-bezier(0.4,0,0.2,1), width .95s cubic-bezier(0.4,0,0.2,1);
-      pointer-events: none;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+.category-nav-inner > .category-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  /* Silver pill highlight — размер/поведение как у .filter-highlight в блоге */
+  background: linear-gradient(135deg, rgba(225,225,235,0.95) 0%, rgba(200,200,215,0.9) 100%);
+  border-radius: 18px;
+  z-index: 2;
+  transition: left 0.95s ease, width 0.95s ease;
+  pointer-events: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
 }
 
-    .category-nav::-webkit-scrollbar {
-      display: none;
-    }
-
-    .category-btn {
-      position: relative;
-      background: transparent;
-      font-family: 'Unbounded', Arial, Helvetica, sans-serif;
-      font-size: clamp(13px, 1.3vw, 16px);
-      text-transform: uppercase;
-      border: none;
-      color: rgba(255,255,255,0.65);
-      padding: 12px 20px;
-      border-radius: 22px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: color 0.4s ease;
-      z-index: 3;
-      letter-spacing: 0.05em;
+/* Отключение transition при скролле — как .filter-tags.is-scrolling .filter-highlight в блоге */
+.category-nav.is-scrolling .category-highlight {
+  transition: none;
 }
 
-    .category-btn.active {
-      color: #1a1a22; /* dark text on silver highlight */
-      font-weight: 500;
+.category-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.category-btn {
+  position: relative;
+  background: transparent;
+  font-family: 'Unbounded', Arial, Helvetica, sans-serif;
+  font-size: clamp(13px, 1.3vw, 16px);
+  text-transform: uppercase;
+  border: none;
+  color: rgba(255,255,255,0.65);
+  padding: 0.4rem 0.875rem;
+  border-radius: 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.4s ease;
+  z-index: 3;
+  letter-spacing: 0.05em;
+}
+
+.category-btn.active {
+  color: #1a1a22;
+  font-weight: 500;
 }
 
     .nav-arrow {

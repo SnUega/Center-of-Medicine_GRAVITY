@@ -285,7 +285,7 @@ export class Gallery {
       if (immediate || this.categoryNav.classList.contains('is-scrolling')) {
         highlight.style.transition = 'none';
       } else {
-        highlight.style.transition = '';
+        highlight.style.removeProperty('transition');
       }
       highlight.style.left = (offsetLeft - 1) + 'px';
       highlight.style.width = width + 'px';
@@ -332,11 +332,11 @@ export class Gallery {
       }, 120);
     }, { passive: true });
 
-    // Обновление при изменении размера
+    // Обновление при изменении размера — immediate: false, чтобы не гасить transition
+    // при срабатывании ResizeObserver после клика (иначе highlight резко прыгает)
     const refreshActive = () => {
-      // Используем кэшированные кнопки вместо querySelector
       const active = this.categoryButtonsCache.find(btn => btn.classList.contains('active'));
-      if (active) updateHighlight(active, true);
+      if (active) updateHighlight(active, false);
     };
     const debouncedRefreshActive = debounce(refreshActive, 250);
     window.addEventListener('resize', debouncedRefreshActive);

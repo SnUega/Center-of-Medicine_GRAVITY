@@ -8,32 +8,32 @@ import { waitForLibrary } from '../../core/utils.js';
 
 /**
  * Данные категорий по умолчанию
- * Реальные фото пока в процессе подготовки — используем имеющиеся снимки
+ * По 2 слайда на категорию — плейсхолдер до загрузки реальных фото
  */
 const defaultCategories = {
-  "Фасад": [
-    "img/IMG_4583.jpg",
-    "img/ASH.jpg"
+  "Здание": [
+    "img/gallery-placeholder.PNG",
+    "img/gallery-placeholder.PNG"
   ],
   "Интерьер": [
-    "img/img-placeholder_1.jpg",
-    "img/img-placeholder.jpg"
+    "img/gallery-placeholder.PNG",
+    "img/gallery-placeholder.PNG"
   ],
   "Инъекционная": [
-    "img/img-placeholder.jpg",
-    "img/img-placeholder_1.jpg"
+    "img/gallery-placeholder.PNG",
+    "img/gallery-placeholder.PNG"
   ],
   "Косметология": [
-    "img/img-placeholder_1.jpg",
-    "img/img-placeholder.jpg"
+    "img/gallery-placeholder.PNG",
+    "img/gallery-placeholder.PNG"
   ],
   "Массаж": [
-    "img/img-placeholder.jpg",
-    "img/img-placeholder_1.jpg"
+    "img/gallery-placeholder.PNG",
+    "img/gallery-placeholder.PNG"
   ],
   "Команда": [
-    "img/img-placeholder_1.jpg",
-    "img/img-placeholder.jpg"
+    "img/gallery-placeholder.PNG",
+    "img/gallery-placeholder.PNG"
   ],
 };
 
